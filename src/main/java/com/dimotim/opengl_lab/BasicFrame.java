@@ -1,7 +1,6 @@
 package com.dimotim.opengl_lab;
 
 
-
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.Animator;
@@ -9,38 +8,49 @@ import com.jogamp.opengl.util.Animator;
 import javax.swing.*;
 
 public class BasicFrame implements GLEventListener {
-    private static int primitiveToGLConstant(ControlPanel.Primitive primitive){
-        switch (primitive){
-            case GL_LINES: return GL2.GL_LINES;
-            case GL_QUADS: return GL2.GL_QUADS;
-            case GL_LINE_LOOP: return GL2.GL_LINE_LOOP;
-            case GL_POINTS: return GL2.GL_POINTS;
-            case GL_POLYGON: return GL2.GL_POLYGON;
-            case GL_TRIANGLES: return GL2.GL_TRIANGLES;
-            case GL_LINE_STRIP: return GL2.GL_LINE_STRIP;
-            case GL_QUAD_STRIP:return GL2.GL_QUAD_STRIP;
-            case GL_TRIANGLE_FAN: return GL2.GL_TRIANGLE_FAN;
-            case GL_TRIANGLE_STRIP:return GL2.GL_TRIANGLE_STRIP;
-            default:throw new RuntimeException();
+    private static int primitiveToGLConstant(ControlPanel.Primitive primitive) {
+        switch (primitive) {
+            case GL_LINES:
+                return GL2.GL_LINES;
+            case GL_QUADS:
+                return GL2.GL_QUADS;
+            case GL_LINE_LOOP:
+                return GL2.GL_LINE_LOOP;
+            case GL_POINTS:
+                return GL2.GL_POINTS;
+            case GL_POLYGON:
+                return GL2.GL_POLYGON;
+            case GL_TRIANGLES:
+                return GL2.GL_TRIANGLES;
+            case GL_LINE_STRIP:
+                return GL2.GL_LINE_STRIP;
+            case GL_QUAD_STRIP:
+                return GL2.GL_QUAD_STRIP;
+            case GL_TRIANGLE_FAN:
+                return GL2.GL_TRIANGLE_FAN;
+            case GL_TRIANGLE_STRIP:
+                return GL2.GL_TRIANGLE_STRIP;
+            default:
+                throw new RuntimeException();
         }
     }
 
-    private ControlPanel.Primitive primitive= ControlPanel.Primitive.GL_LINES;
+    private ControlPanel.Primitive primitive = ControlPanel.Primitive.GL_LINES;
 
-    public void setPrimitive(ControlPanel.Primitive primitive){
-        this.primitive=primitive;
+    public void setPrimitive(ControlPanel.Primitive primitive) {
+        this.primitive = primitive;
     }
 
     public void display(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
         gl.glBegin(primitiveToGLConstant(primitive));
-            gl.glVertex3f(-0.50f, -0.50f, 0);
-            gl.glVertex3f(0.50f, -0.50f, 0);
-            gl.glVertex3f(0f, 0.50f, 0);
-            gl.glVertex3f(-0.50f, -0.50f, 0);
-            gl.glVertex3f(0f, 0.50f, 0);
-            gl.glVertex3f(0.50f, -0.50f, 0);
+        gl.glVertex3f(-0.50f, -0.50f, 0);
+        gl.glVertex3f(0.50f, -0.50f, 0);
+        gl.glVertex3f(0f, 0.50f, 0);
+        gl.glVertex3f(-0.50f, -0.50f, 0);
+        gl.glVertex3f(0f, 0.50f, 0);
+        gl.glVertex3f(0.50f, -0.50f, 0);
 
         gl.glEnd();
         gl.glFlush();
@@ -64,20 +74,21 @@ public class BasicFrame implements GLEventListener {
 
         final GLCanvas glcanvas = new GLCanvas(capabilities);
 
-        Animator animator=new Animator(glcanvas);
+        Animator animator = new Animator(glcanvas);
         animator.start();
 
         BasicFrame frame = new BasicFrame();
         glcanvas.addGLEventListener(frame);
         glcanvas.setSize(700, 700);
 
-        JPanel content=new JPanel();
+        JPanel content = new JPanel();
         content.add(glcanvas);
-        content.add(new ControlPanel(frame,content));
+        content.add(new ControlPanel(frame, glcanvas));
 
-        final JFrame window = new JFrame ("Basic Frame");
+        final JFrame window = new JFrame("Basic Frame");
 
 
+        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setContentPane(content);
         window.setSize(window.getContentPane().getPreferredSize());
         window.setVisible(true);
@@ -86,16 +97,22 @@ public class BasicFrame implements GLEventListener {
 
 }
 
-class ControlPanel extends JPanel{
-    ControlPanel(BasicFrame frame, JPanel parent){
-        JComboBox<Primitive> comboBox=new JComboBox<>(Primitive.values());
+class ControlPanel extends JPanel {
+    ControlPanel(final BasicFrame frame, GLCanvas canvas) {
+        JComboBox<Primitive> comboBox = new JComboBox<>(Primitive.values());
         add(comboBox);
-        comboBox.addItemListener(v->{
+        comboBox.addItemListener(v -> {
+            final Primitive primitive = (Primitive) comboBox.getSelectedItem();
+            canvas.invoke(false, glAutoDrawable -> {
+                        frame.setPrimitive(primitive);
+                        return false;
+                    }
+            );
             frame.setPrimitive((Primitive) comboBox.getSelectedItem());
-            parent.updateUI();
         });
     }
-    enum Primitive{
+
+    enum Primitive {
         GL_POINTS,
         GL_LINES,
         GL_LINE_STRIP,
