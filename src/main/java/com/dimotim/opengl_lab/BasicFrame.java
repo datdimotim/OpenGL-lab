@@ -92,7 +92,7 @@ public class BasicFrame implements GLEventListener {
 
         JPanel content=new JPanel();
         content.add(glcanvas);
-        content.add(new ControlPanel(frame,content));
+        content.add(new ControlPanel(frame,glcanvas));
 
         final JFrame window = new JFrame ("Basic Frame");
 
@@ -106,12 +106,16 @@ public class BasicFrame implements GLEventListener {
 }
 
 class ControlPanel extends JPanel{
-    ControlPanel(BasicFrame frame, JPanel parent){
+    ControlPanel(BasicFrame frame, GLCanvas canvas){
         JComboBox<Primitive> comboBox=new JComboBox<>(Primitive.values());
         add(comboBox);
         comboBox.addItemListener(v->{
-            frame.setPrimitive((Primitive) comboBox.getSelectedItem());
-            parent.updateUI();
+            final Primitive primitive=(Primitive) comboBox.getSelectedItem();
+            canvas.invoke(false,(e)->{
+                frame.setPrimitive(primitive);
+                return false;
+            });
+
         });
     }
     enum Primitive{
