@@ -16,6 +16,7 @@ public class BasicFrame implements GLEventListener {
     private double yScissor = 100;
     private double xScissor = 100;
     private double alphaVal = 1.0;
+    private int depth = 1;
     private ControlPanel.Primitive primitive = ControlPanel.Primitive.GL_POINTS;
     private ControlPanel.Alpha alpha = ControlPanel.Alpha.GL_NEVER;
     private ControlPanel.Sfactor sfactor= ControlPanel.Sfactor.GL_ZERO;
@@ -53,6 +54,10 @@ public class BasicFrame implements GLEventListener {
         this.alphaVal = alphaVal;
     }
 
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     public void display(GLAutoDrawable drawable) {
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
@@ -76,7 +81,7 @@ public class BasicFrame implements GLEventListener {
         //gl.glBegin(primitiveToGLConstant(primitive));
         gl.glLoadIdentity();
         gl.glScalef(2,2,2);
-        fractal(gl,4);
+        fractal(gl,depth);
         //gl.glEnd();
         gl.glFlush();
     }
@@ -228,7 +233,7 @@ public class BasicFrame implements GLEventListener {
 
 class ControlPanel extends JPanel {
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(12, 1));
+        setLayout(new GridLayout(13, 1));
         JComboBox<Primitive> comboBox = new JComboBox<>(Primitive.values());
         add(comboBox);
         comboBox.addItemListener(v -> {
@@ -274,7 +279,7 @@ class ControlPanel extends JPanel {
         add(new JLabel("Прозрачность"));
         JComboBox<Alpha> alphaComboBox = new JComboBox<>(Alpha.values());
         alphaComboBox.addItemListener(e -> {
-            Alpha alpha = (Alpha) alphaComboBox.getSelectedItem();
+            final Alpha alpha = (Alpha) alphaComboBox.getSelectedItem();
             canvas.invoke(false, ee -> {
                 frame.setAlpha(alpha);
                 return false;
@@ -300,7 +305,7 @@ class ControlPanel extends JPanel {
         add(new JLabel("sfactor"));
         add(new JComboBox<Sfactor>(Sfactor.values()){{
             addItemListener(e->{
-                Sfactor sfactor= (Sfactor) getSelectedItem();
+                final Sfactor sfactor= (Sfactor) getSelectedItem();
                 canvas.invoke(false,ee->{
                     frame.setSfactor(sfactor);
                     return false;
@@ -311,7 +316,7 @@ class ControlPanel extends JPanel {
         add(new JLabel("dfactor"));
         add(new JComboBox<Dfactor>(Dfactor.values()){{
             addItemListener(e->{
-                Dfactor dfactor= (Dfactor) getSelectedItem();
+                final Dfactor dfactor= (Dfactor) getSelectedItem();
                 canvas.invoke(false,ee->{
                     frame.setDfactor(dfactor);
                     return false;
@@ -319,7 +324,19 @@ class ControlPanel extends JPanel {
             setSelectedItem(Dfactor.GL_ZERO);
             });
         }});
-
+        add(new JPanel(){{
+            add(new JLabel("depth"));
+            add(new JComboBox<>(new Integer[]{1,2,3,4,5,6,7,8}){{
+                addItemListener(e->{
+                    final int depth= (int) getSelectedItem();
+                    canvas.invoke(false,ee->{
+                       frame.setDepth(depth);
+                       return false;
+                    });
+                });
+                setSelectedItem(1);
+            }});
+        }});
 
     }
 
