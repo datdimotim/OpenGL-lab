@@ -56,7 +56,6 @@ public class BasicFrame implements GLEventListener {
     public void display(GLAutoDrawable drawable) {
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
-        generateVertexInfo();
         final GL2 gl = drawable.getGL().getGL2();
         gl.glPointSize(10);
         gl.glDisable(GL_SCISSOR_TEST);
@@ -73,30 +72,55 @@ public class BasicFrame implements GLEventListener {
         gl.glViewport(0, 0, width, heght);
         gl.glScissor(0, 0, ((int) (width * xScissor / 100.0)), ((int) (heght * yScissor / 100.0)));
 
-        gl.glBegin(primitiveToGLConstant(primitive));
-        for (int i = 0; i < coords.size(); i = i + 3) {
-            gl.glColor4f(colors.get((int) (i / 3)).r, colors.get((int) (i / 3)).g, colors.get((int) (i / 3)).b, colors.get((int) (i / 3)).b);
-            for (int j = i; j < i + 3; j++) {
-                gl.glVertex3f(coords.get(j).x, coords.get(j).y, 0);
-                ;
-            }
-        }
-        gl.glEnd();
+
+        //gl.glBegin(primitiveToGLConstant(primitive));
+        gl.glLoadIdentity();
+        fractal(gl,2);
+        //gl.glEnd();
         gl.glFlush();
     }
 
-    private void generateVertexInfo() {
-        colors.clear();
-        coords.clear();
-        double r = 0.5;
-        int n = 9;
-        for (int i = 0; i < n; i++) {
-            coords.add(new Coords((float) (r * Math.cos((2 * Math.PI * i) / n)), (float) (r * Math.sin((2 * Math.PI * i) / n))));
-        }
-        colors.add(new VertexColor(1, 1, 1));
-        colors.add(new VertexColor(0, 0.5f, 0.5f));
-        colors.add(new VertexColor(0.0f, 0, 0));
+    private void fractal(GL2 gl,final int depth){
+        if(depth==0)return;
+        segment(gl);
 
+        gl.glPushMatrix();
+            gl.glRotatef(45f,0,0.0f,1.0f);
+            gl.glScalef(0.75f,0.75f,0.75f);
+            gl.glTranslatef(0,0.5f,0);
+            fractal(gl,depth-1);
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+            gl.glRotatef(-45f,0,0.0f,1.0f);
+            gl.glScalef(0.75f,0.75f,0.75f);
+            gl.glTranslatef(0,0.5f,0);
+            fractal(gl,depth-1);
+        gl.glPopMatrix();
+    }
+
+    private void segment(GL2 gl){
+        gl.glPushMatrix();
+        gl.glBegin(primitiveToGLConstant(primitive));
+            gl.glVertex2f(0,-0.5f);
+            gl.glVertex2f(0,0.0f);
+        gl.glEnd();
+
+        gl.glScalef(0.75f,0.75f,0.75f);
+        gl.glRotatef(135f,0,0.0f,1.0f);
+
+        gl.glBegin(primitiveToGLConstant(primitive));
+            gl.glVertex2f(0,-0.5f);
+            gl.glVertex2f(0,0.0f);
+        gl.glEnd();
+
+        gl.glRotatef(90f,0,0.0f,1.0f);
+
+        gl.glBegin(primitiveToGLConstant(primitive));
+            gl.glVertex2f(0,-0.5f);
+            gl.glVertex2f(0,0.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
     }
 
     public void dispose(GLAutoDrawable arg0) {
@@ -209,7 +233,8 @@ class ControlPanel extends JPanel {
             });
 
         });
-        comboBox.setSelectedItem(Primitive.GL_POLYGON);
+        comboBox.setSelectedItem(Primitive.GL_LINES);
+
 
 
         add(new JLabel("Отсечение"));
@@ -249,6 +274,7 @@ class ControlPanel extends JPanel {
                 return false;
             });
         });
+        alphaComboBox.setSelectedItem(Alpha.GL_ALWAYS);
         add(alphaComboBox);
         add(new JPanel() {{
             add(new Label(""));
@@ -274,6 +300,7 @@ class ControlPanel extends JPanel {
                     return false;
                 });
             });
+            setSelectedItem(Sfactor.GL_ONE);
         }});
         add(new JLabel("dfactor"));
         add(new JComboBox<Dfactor>(Dfactor.values()){{
@@ -283,6 +310,7 @@ class ControlPanel extends JPanel {
                     frame.setDfactor(dfactor);
                     return false;
                 });
+            setSelectedItem(Dfactor.GL_ZERO);
             });
         }});
 
