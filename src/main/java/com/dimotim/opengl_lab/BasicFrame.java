@@ -75,52 +75,58 @@ public class BasicFrame implements GLEventListener {
 
         //gl.glBegin(primitiveToGLConstant(primitive));
         gl.glLoadIdentity();
-        fractal(gl,2);
+        gl.glScalef(2,2,2);
+        fractal(gl,4);
         //gl.glEnd();
         gl.glFlush();
     }
 
     private void fractal(GL2 gl,final int depth){
-        if(depth==0)return;
-        segment(gl);
+
+        gl.glColor3f(1,1,1);
+
+        if(depth==1) {
+            segmentBig(gl);
+            return;
+        }
+        segmentSmall(gl);
 
         gl.glPushMatrix();
-            gl.glRotatef(45f,0,0.0f,1.0f);
-            gl.glScalef(0.75f,0.75f,0.75f);
-            gl.glTranslatef(0,0.5f,0);
+            gl.glTranslatef(0.25f,0.015f,0);
+            gl.glRotatef(-30,0,0,1);
+            gl.glScalef(0.3f,0.3f,0.3f);
             fractal(gl,depth-1);
         gl.glPopMatrix();
 
+
         gl.glPushMatrix();
-            gl.glRotatef(-45f,0,0.0f,1.0f);
-            gl.glScalef(0.75f,0.75f,0.75f);
-            gl.glTranslatef(0,0.5f,0);
+            gl.glTranslatef(0.25f,0.1f,0);
+            gl.glRotatef(30,0,0,1);
+            gl.glScalef(0.5f,0.5f,0.5f);
+             //gl.glTranslatef(0.0f,0.1f,0);
+
             fractal(gl,depth-1);
         gl.glPopMatrix();
     }
 
-    private void segment(GL2 gl){
+    private void segmentBig(GL2 gl){
+        gl.glBegin(primitiveToGLConstant(primitive));
+            gl.glVertex2f(0,0.5f);
+            gl.glVertex2f(-0.25f,0.0f);
+            gl.glVertex2f(0.25f,0.0f);
+        gl.glEnd();
+
+    }
+    private void segmentSmall(GL2 gl){
         gl.glPushMatrix();
+        gl.glRotatef(10,0,0,1f);
         gl.glBegin(primitiveToGLConstant(primitive));
-            gl.glVertex2f(0,-0.5f);
-            gl.glVertex2f(0,0.0f);
-        gl.glEnd();
-
-        gl.glScalef(0.75f,0.75f,0.75f);
-        gl.glRotatef(135f,0,0.0f,1.0f);
-
-        gl.glBegin(primitiveToGLConstant(primitive));
-            gl.glVertex2f(0,-0.5f);
-            gl.glVertex2f(0,0.0f);
-        gl.glEnd();
-
-        gl.glRotatef(90f,0,0.0f,1.0f);
-
-        gl.glBegin(primitiveToGLConstant(primitive));
-            gl.glVertex2f(0,-0.5f);
-            gl.glVertex2f(0,0.0f);
+        gl.glVertex2f(0,0.02f);
+        gl.glVertex2f(-0.2f,0.0f);
+        gl.glVertex2f(0.2f,0.0f);
         gl.glEnd();
         gl.glPopMatrix();
+
     }
 
     public void dispose(GLAutoDrawable arg0) {
@@ -233,7 +239,7 @@ class ControlPanel extends JPanel {
             });
 
         });
-        comboBox.setSelectedItem(Primitive.GL_LINES);
+        comboBox.setSelectedItem(Primitive.GL_LINE_LOOP);
 
 
 
