@@ -7,10 +7,19 @@ import com.jogamp.opengl.util.Animator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.function.Function;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL2ES1.GL_ALPHA_TEST;
+import static java.lang.Math.abs;
+import static java.lang.Math.floor;
 
 public class BasicFrame implements GLEventListener {
     private double yScissor = 100;
@@ -21,7 +30,7 @@ public class BasicFrame implements GLEventListener {
     private ControlPanel.Alpha alpha = ControlPanel.Alpha.GL_NEVER;
     private ControlPanel.Sfactor sfactor= ControlPanel.Sfactor.GL_ZERO;
     private ControlPanel.Dfactor dfactor=ControlPanel.Dfactor.GL_ZERO;
-
+    public ArrayList<Coords> points= new ArrayList();
     public void setSfactor(ControlPanel.Sfactor sfactor) {
         this.sfactor = sfactor;
     }
@@ -29,8 +38,9 @@ public class BasicFrame implements GLEventListener {
     public void setDfactor(ControlPanel.Dfactor dfactor) {
         this.dfactor = dfactor;
     }
+    public float pointSize = 2;
+    public float pointSizeBig = 20;
 
-    private ArrayList<Coords> coords = new ArrayList<>();
     private ArrayList<VertexColor> colors = new ArrayList<>();
 
 
@@ -57,12 +67,96 @@ public class BasicFrame implements GLEventListener {
     public void setDepth(int depth) {
         this.depth = depth;
     }
+    int n = 6;
+    int qmax = 4;
+    double []ts = new double[qmax+n+1];
+    Coords []ps = new Coords[n];
+    public void genTs(){
+        for (int i = 0; i < ts.length; i++) {
+            ts[i]=i*100;
+        }
+        System.out.println(ps.length);
+       /* for (int i = 0; i < ps.length; i++) {
+            ps[i]=new Coords(100f*i,100f,700,700);
+        }*/
+        points.add(new Coords(0f,100f,700,700));
+        points.add(new Coords(100f,200f,700,700));
+        points.add(new Coords(200f,100f,700,700));
+        points.add(new Coords(300f,300f,700,700));
+        points.add(new Coords(400f,100f,700,700));
+        points.add(new Coords(500f,500f,700,700));
 
+    }
+   int maxPoints=500;
+  public void recountTs(){
+      float max = -1;
+      float min = 100000;
+      for (int ktr = 0; ktr < points.size(); ktr++) {
+          if (points.get(ktr).JavaX > max) {
+              max = points.get(ktr).JavaX;
+          }
+          if (points.get(ktr).JavaX < min) {
+              min = points.get(ktr).JavaX;
+          }
+      }
+      maxPoints = (int)max;
+      float dt = (max-min)/(ts.length-1);
+      for (int i = 0; i < ts.length; i++) {
+          ts[i]=min+i*dt*1.75;
+      }
+  }
+    Function<Double, Double>[][] ns = new Function[qmax][n];
+    public void regenerateAll(){
+        n++;
+        ts = new double[qmax+n+1];
+        ns = new Function[qmax][n];
+        recountTs();
+        Collections.sort(points, new Comparator<Coords>() {
+            @Override
+            public int compare(Coords o1, Coords o2) {
+                return (int)(o1.JavaX - o2.JavaX);
+            }
+        });
+        generateNs(0,0);
+    }
+    public Double processNs(int q, int k,double t){
+        if (q==1) {
+                if ((t>=ts[k]&&t<ts[k+1])) return 1.0;
+                return 0.0;
+        }
+        Double pr1,pr2;
+        if (abs(ts[k + q - 1] - ts[k])<=1E-4) pr1 = 0.0;
+            else pr1 = (t - ts[k]) / (ts[k + q - 1] - ts[k]) *processNs(q - 1,k,t);
+        if (abs(ts[k + q] - ts[k + 1])<1E-4) pr2=0.0;
+            else pr2 = (ts[q + k] - t) / (ts[k + q] - ts[k + 1]) * processNs(q - 1,k + 1,t);
+        return    pr1+pr2;
+    }
+public void  generateNs(int k,int q){
+    if (q==1) {
+        ns[q][k] = t -> {
+            if ((t>=ts[k]&&t<ts[k+1])) return 1.0;
+            return 0.0;
+        };
+    }
+    else {
+        ns[q][k] = t -> {
+            Double pr1,pr2;
+           if (abs(ts[k + q - 1] - ts[k])<=1E-4) pr1 = 0.0;
+            else pr1 = (t - ts[k]) / (ts[k + q - 1] - ts[k]) *processNs(q - 1,k,t);
+            if (abs(ts[k + q] - ts[k + 1])<1E-4) pr2=0.0;
+                else pr2 = (ts[q + k] - t) / (ts[k + q] - ts[k + 1]) * processNs(q - 1,k + 1,t);
+            return    pr1+pr2;
+
+        };
+    }
+    if (q<qmax-1)generateNs(k,q+1);
+    if (k<ns[0].length-1&&q<qmax-1)generateNs(k+1,q);
+}
     public void display(GLAutoDrawable drawable) {
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
         final GL2 gl = drawable.getGL().getGL2();
-        gl.glPointSize(10);
+        gl.glPointSize(pointSizeBig);
         gl.glDisable(GL_SCISSOR_TEST);
         gl.glDisable(GL_ALPHA_TEST);
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
@@ -77,12 +171,30 @@ public class BasicFrame implements GLEventListener {
         gl.glViewport(0, 0, width, heght);
         gl.glScissor(0, 0, ((int) (width * xScissor / 100.0)), ((int) (heght * yScissor / 100.0)));
 
+        gl.glBegin(primitiveToGLConstant(primitive));
+        for (int i = 0;i<points.size()-1;i++) {
+            gl.glVertex2f(points.get(i).OpenGLX,points.get(i).OpenGLY);
+        }
+        gl.glEnd();
+        gl.glPointSize(pointSize);
+        gl.glBegin(primitiveToGLConstant(primitive));
+        double sumPrev=0;
+        for (int t = 0; t < maxPoints; t++) {
+            double sumX=0;
+            double sumY=0;
+            for (int i = 0; i < ns[0].length-1; i++) {
+                double nn = ns[qmax-1][i].apply(t*1.0);
+                sumX += nn*points.get(i).JavaX;
+                sumY += nn*points.get(i).JavaY;
+            }
+            //if (sumPrev<=sumX) {
+                Coords coords = new Coords((float) sumX, (float) sumY, 700f, 700f);
+                gl.glVertex2f(coords.OpenGLX, coords.OpenGLY);
+            //}
+            sumPrev=sumX;
+        }
 
-        //gl.glBegin(primitiveToGLConstant(primitive));
-        gl.glLoadIdentity();
-        gl.glScalef(2,2,2);
-        fractal(gl,depth);
-        //gl.glEnd();
+        gl.glEnd();
         gl.glFlush();
     }
 
@@ -145,7 +257,8 @@ public class BasicFrame implements GLEventListener {
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
 
     }
-
+    float canvasW;
+    float canvasH;
     public static void main(String[] args) {
 
         final GLProfile profile = GLProfile.get(GLProfile.GL2);
@@ -153,12 +266,76 @@ public class BasicFrame implements GLEventListener {
 
         final GLCanvas glcanvas = new GLCanvas(capabilities);
 
+
         Animator animator = new Animator(glcanvas);
         animator.start();
 
         BasicFrame frame = new BasicFrame();
+        frame.genTs();
+        frame.generateNs(0,0);
+
+
         glcanvas.addGLEventListener(frame);
         glcanvas.setSize(700, 700);
+        final int[] draggedPointIndex = {-1};
+        glcanvas.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                final float X=mouseEvent.getX();
+                final float Y=mouseEvent.getY();
+                final float w=glcanvas.getSize().width;
+                final float h=glcanvas.getSize().height;
+                glcanvas.invoke(false, ee -> {
+                    frame.points.add(new Coords(1f * X, 1f * Y, 1f * w, 1f * h));
+                    frame.regenerateAll();
+
+                    return false;
+                });
+            }
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {}
+            @Override
+            public void mouseReleased(MouseEvent mouseEvent) {
+                glcanvas.invoke(false,(t)-> {
+                    draggedPointIndex[0] = -1;
+                    return false;
+                });
+            }
+            @Override
+            public void mouseEntered(MouseEvent mouseEvent) {}
+            @Override
+            public void mouseExited(MouseEvent mouseEvent) {}
+        });
+        glcanvas.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent mouseEvent) {
+                final float pointSize = frame.pointSize;
+                final float pointSizeBig = frame.pointSizeBig;
+
+                final float X=mouseEvent.getX();
+                final float Y=mouseEvent.getY();
+                glcanvas.invoke(false,(t)->{
+                    if (draggedPointIndex[0]!=-1) {
+                        frame.points.get(draggedPointIndex[0]).recountCoords(X,Y);
+                        return false;
+                    }
+                    for (int i = 0; i < frame.points.size(); i++) {
+                        if (frame.points.get(i).JavaX-pointSizeBig<X&&
+                                frame.points.get(i).JavaX+pointSizeBig>X&&
+                                frame.points.get(i).JavaY-pointSizeBig<Y&&
+                                frame.points.get(i).JavaY+pointSizeBig>Y
+                        ){
+                            draggedPointIndex[0] = i;
+                            break;
+                        }
+                    }
+                    return false;
+                });
+            }
+            @Override
+            public void mouseMoved(MouseEvent mouseEvent) { }
+        });
+
 
         JPanel content = new JPanel();
         content.add(glcanvas);
@@ -172,7 +349,6 @@ public class BasicFrame implements GLEventListener {
         window.setVisible(true);
 
     }
-
     private static int primitiveToGLConstant(ControlPanel.Primitive primitive) {
         switch (primitive) {
             case GL_LINES: return GL2.GL_LINES;
@@ -244,7 +420,7 @@ class ControlPanel extends JPanel {
             });
 
         });
-        comboBox.setSelectedItem(Primitive.GL_LINE_LOOP);
+        comboBox.setSelectedItem(Primitive.GL_POINTS);
 
 
 
@@ -389,11 +565,20 @@ class ControlPanel extends JPanel {
 
 
 class Coords {
-    float x, y;
-
-    Coords(float x, float y) {
-        this.x = x;
-        this.y = y;
+    float JavaX, JavaY, OpenGLX, OpenGLY;
+    float screenX,  screenY;
+    Coords(float JavaX, float JavaY, float screenX, float screenY) {
+        this.JavaX = JavaX;
+        this.JavaY = JavaY;
+        this.screenX = screenX;
+        this.screenY = screenY;
+        recountCoords(JavaX,JavaY);
+    }
+    public void recountCoords(float JavaX, float JavaY){
+        this.JavaX = JavaX;
+        this.JavaY = JavaY;
+        OpenGLX = 2*JavaX/screenX-1;
+        OpenGLY = -2*JavaY/screenY+1;
     }
 }
 
