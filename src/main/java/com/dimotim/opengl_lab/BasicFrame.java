@@ -39,7 +39,7 @@ public class BasicFrame implements GLEventListener {
         this.dfactor = dfactor;
     }
     public float pointSize = 2;
-    public float pointSizeBig = 20;
+    public float pointSizeBig = 10;
 
     private ArrayList<VertexColor> colors = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class BasicFrame implements GLEventListener {
     public void setDepth(int depth) {
         this.depth = depth;
     }
-    int n = 6;
+    int n = 7;
     int qmax = 4;
     double []ts = new double[qmax+n+1];
     Coords []ps = new Coords[n];
@@ -80,11 +80,12 @@ public class BasicFrame implements GLEventListener {
             ps[i]=new Coords(100f*i,100f,700,700);
         }*/
         points.add(new Coords(0f,100f,700,700));
+        points.add(new Coords(50,150f,700,700));
         points.add(new Coords(100f,200f,700,700));
         points.add(new Coords(200f,100f,700,700));
         points.add(new Coords(300f,300f,700,700));
         points.add(new Coords(400f,100f,700,700));
-        points.add(new Coords(500f,500f,700,700));
+        //points.add(new Coords(500f,500f,700,700));
 
     }
    int maxPoints=500;
@@ -157,17 +158,9 @@ public void  generateNs(int k,int q){
         final int heght = drawable.getSurfaceHeight();
         final GL2 gl = drawable.getGL().getGL2();
         gl.glPointSize(pointSizeBig);
-        gl.glDisable(GL_SCISSOR_TEST);
-        gl.glDisable(GL_ALPHA_TEST);
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
 
 
-        gl.glEnable(GL_BLEND);
-        gl.glBlendFunc(sFactorToGLConstant(sfactor),dFactorToGLConstant(dfactor));
-        gl.glEnable(GL_ALPHA_TEST);
-        gl.glAlphaFunc(alphaToGLConstant(alpha), (float) alphaVal);
-
-        gl.glEnable(GL_SCISSOR_TEST);
         gl.glViewport(0, 0, width, heght);
         gl.glScissor(0, 0, ((int) (width * xScissor / 100.0)), ((int) (heght * yScissor / 100.0)));
 
@@ -179,16 +172,18 @@ public void  generateNs(int k,int q){
         gl.glPointSize(pointSize);
         gl.glBegin(primitiveToGLConstant(primitive));
         double sumPrev=0;
-        for (int t = 0; t < maxPoints; t++) {
+        for (int t = 50; t < maxPoints; t++) {
             double sumX=0;
             double sumY=0;
+            double sumZnamenatel=0;
             for (int i = 0; i < ns[0].length-1; i++) {
                 double nn = ns[qmax-1][i].apply(t*1.0);
-                sumX += nn*points.get(i).JavaX;
-                sumY += nn*points.get(i).JavaY;
+                sumX += nn*points.get(i).JavaX*points.get(i).weigh;
+                sumY += nn*points.get(i).JavaY*points.get(i).weigh;
+                sumZnamenatel +=  nn*points.get(i).weigh;
             }
             //if (sumPrev<=sumX) {
-                Coords coords = new Coords((float) sumX, (float) sumY, 700f, 700f);
+                Coords coords = new Coords((float) (sumX/sumZnamenatel), (float) (sumY/sumZnamenatel), 700f, 700f);
                 gl.glVertex2f(coords.OpenGLX, coords.OpenGLY);
             //}
             sumPrev=sumX;
@@ -409,111 +404,26 @@ public void  generateNs(int k,int q){
 
 class ControlPanel extends JPanel {
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(13, 1));
-        JComboBox<Primitive> comboBox = new JComboBox<>(Primitive.values());
-        add(comboBox);
-        comboBox.addItemListener(v -> {
-            final Primitive primitive = (Primitive) comboBox.getSelectedItem();
-            canvas.invoke(false, (e) -> {
-                frame.setPrimitive(primitive);
-                return false;
-            });
+        setLayout(new GridLayout(1, 1));
 
-        });
-        comboBox.setSelectedItem(Primitive.GL_POINTS);
-
-
-
-        add(new JLabel("Отсечение"));
-        add(new JPanel() {{
-            add(new Label("X"));
-            JSlider xSlider = new JSlider(0, 100, 100);
-            xSlider.addChangeListener(v -> {
-                final int val = xSlider.getValue();
-                canvas.invoke(false, (e) -> {
-                    frame.setXScissor(val);
-                    return false;
-                });
-
-            });
-            add(xSlider);
-        }});
-        add(new JPanel() {{
-            add(new Label("Y"));
-            JSlider ySlider = new JSlider(0, 100, 100);
-            ySlider.addChangeListener(v -> {
-                final int val = ySlider.getValue();
-                canvas.invoke(false, (e) -> {
-                    frame.setYScissor(val);
-                    return false;
-                });
-
-            });
-            add(ySlider);
-        }});
-
-        add(new JLabel("Прозрачность"));
-        JComboBox<Alpha> alphaComboBox = new JComboBox<>(Alpha.values());
-        alphaComboBox.addItemListener(e -> {
-            final Alpha alpha = (Alpha) alphaComboBox.getSelectedItem();
-            canvas.invoke(false, ee -> {
-                frame.setAlpha(alpha);
-                return false;
-            });
-        });
-        alphaComboBox.setSelectedItem(Alpha.GL_ALWAYS);
-        add(alphaComboBox);
-        add(new JPanel() {{
-            add(new Label(""));
-            JSlider slider = new JSlider(0, 100, 100);
-            slider.addChangeListener(e -> {
-                final int val = slider.getValue();
-                canvas.invoke(false, ee -> {
-                    frame.setAlphaVal(val / 100.0);
-                    return false;
-                });
-            });
-            add(slider);
-        }});
-
-
-        add(new JLabel("Смешение"));
-        add(new JLabel("sfactor"));
-        add(new JComboBox<Sfactor>(Sfactor.values()){{
-            addItemListener(e->{
-                final Sfactor sfactor= (Sfactor) getSelectedItem();
-                canvas.invoke(false,ee->{
-                    frame.setSfactor(sfactor);
-                    return false;
-                });
-            });
-            setSelectedItem(Sfactor.GL_ONE);
-        }});
-        add(new JLabel("dfactor"));
-        add(new JComboBox<Dfactor>(Dfactor.values()){{
-            addItemListener(e->{
-                final Dfactor dfactor= (Dfactor) getSelectedItem();
-                canvas.invoke(false,ee->{
-                    frame.setDfactor(dfactor);
-                    return false;
-                });
-            setSelectedItem(Dfactor.GL_ZERO);
-            });
-        }});
         add(new JPanel(){{
-            add(new JLabel("depth"));
-            add(new JComboBox<>(new Integer[]{1,2,3,4,5,6,7,8}){{
-                addItemListener(e->{
-                    final int depth= (int) getSelectedItem();
-                    canvas.invoke(false,ee->{
-                       frame.setDepth(depth);
-                       return false;
+            for (int i = 0; i < 6; i++) {
+                setLayout(new GridLayout(6,1));
+                int finalI = i;
+                add(new JPanel() {{
+                   add(new JLabel((finalI+1)+""));
+                    JSlider slider= new JSlider(1, 30, 1);
+                    slider.addChangeListener(e -> {
+                        final int val = slider.getValue();
+                        canvas.invoke(false, ee -> {
+                            frame.points.get(finalI).weigh = val;
+                            return false;
+                        });
                     });
-                });
-                setSelectedItem(1);
-            }});
+                    add(slider);
+                }});
+            };
         }});
-
     }
 
     enum Primitive {
@@ -567,6 +477,7 @@ class ControlPanel extends JPanel {
 class Coords {
     float JavaX, JavaY, OpenGLX, OpenGLY;
     float screenX,  screenY;
+    float weigh = 1;
     Coords(float JavaX, float JavaY, float screenX, float screenY) {
         this.JavaX = JavaX;
         this.JavaY = JavaY;
