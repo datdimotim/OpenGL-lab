@@ -6,9 +6,13 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -18,9 +22,13 @@ import static com.jogamp.opengl.GL.*;
 
 
 public class BasicFrame implements GLEventListener {
+    public static final String texturePath="/texture.png";
+
     private FloatBuffer vertexData;
     private FloatBuffer colorData;
+    private FloatBuffer textureData;
     private int indexId;
+    private int textureId;
 
     private Shader shader=null;
     private final float[] matrix={
@@ -43,6 +51,7 @@ public class BasicFrame implements GLEventListener {
 
         gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData);
         gl.glVertexAttribPointer(shader.vertexArrayId,2,GL_FLOAT,false,0,vertexData);
+        gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData);
 
         gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId);
 
@@ -69,6 +78,13 @@ public class BasicFrame implements GLEventListener {
                 .put(0.8f).put(-0.8f)
                 .position(0);
 
+        textureData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        textureData
+                .put(0).put(0)
+                .put(0).put(0.3f)
+                .put(0.3f).put(0.3f)
+                .position(0);
+
         colorData = ByteBuffer.allocateDirect(4*3*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
         colorData
                 .put(0.8f).put(0.8f).put(0)
@@ -83,10 +99,27 @@ public class BasicFrame implements GLEventListener {
         gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId);
         gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.capacity() * 2, indexData, GL_STATIC_DRAW);
         gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+
+
+        gl.glActiveTexture(GL_TEXTURE0);
+        textureId = loadTexture(texturePath).getTextureObject();
+        gl.glBindTexture(GL_TEXTURE_2D, textureId);
+        gl.glUniform1i(shader.textureId, 0);// 0- индекс текстурного блока
     }
 
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
 
+    }
+
+    private static Texture loadTexture(String file){
+        try {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(ImageIO.read(BasicFrame.class.getResourceAsStream(file)), "png", os);
+            InputStream fis = new ByteArrayInputStream(os.toByteArray());
+            return TextureIO.newTexture(fis, true, TextureIO.PNG);
+        } catch (IOException e) {
+            throw new RuntimeException("error load texture: file="+file);
+        }
     }
 
     public static void main(String[] args) {

@@ -14,8 +14,8 @@ public class Shader{
     public static final String MODEL_MATRIX="u_Model_Matrix";
     public static final String COLOR_ARRAY="a_Color";
     public static final String VERTEX_ARRAY="a_Position";
-    //public static final String TEXTURE_ARRAY="a_Tex_Coord";
-    //public static final String TEXTURE="u_texture";
+    public static final String TEXTURE_ARRAY="a_Tex_Coord";
+    public static final String TEXTURE="u_texture";
 
     public final ShaderProgram shaderProgram;
     public final int monitorMatrixId;
@@ -23,8 +23,8 @@ public class Shader{
     public final int modelMatrixId;
     public final int colorArrayId;
     public final int vertexArrayId;
-   //public final int textureArrayId;
-    //public final int textureId;
+    public final int textureArrayId;
+    public final int textureId;
 
     public Shader(GL2 gl){
         final String vertexShaderText=FileUtils.readTextFromRaw(vertexShaderPath);
@@ -50,13 +50,13 @@ public class Shader{
 
         viewMatrixId = gl.glGetUniformLocation(shaderProgram.id(), VIEW_MATRIX);
         monitorMatrixId =gl.glGetUniformLocation(shaderProgram.id(), MONITOR_MATRIX);
-        //textureId = gl.glGetUniformLocation(shaderProgramId, TEXTURE);
+        textureId = gl.glGetUniformLocation(shaderProgram.id(), TEXTURE);
         modelMatrixId =gl.glGetUniformLocation(shaderProgram.id(), MODEL_MATRIX);
         colorArrayId = gl.glGetAttribLocation(shaderProgram.id(), COLOR_ARRAY);
         vertexArrayId = gl.glGetAttribLocation(shaderProgram.id(), VERTEX_ARRAY);
-        //textureArrayId=gl.glGetAttribLocation(shaderProgramId, TEXTURE_ARRAY);
+        textureArrayId=gl.glGetAttribLocation(shaderProgram.id(), TEXTURE_ARRAY);
         gl.glEnableVertexAttribArray(colorArrayId);
-        //gl.glEnableVertexAttribArray(textureArrayId);
+        gl.glEnableVertexAttribArray(textureArrayId);
         gl.glEnableVertexAttribArray(vertexArrayId);
         gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);           // enable vertex arrays
     }
