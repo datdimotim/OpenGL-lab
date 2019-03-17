@@ -4,6 +4,7 @@ package com.dimotim.opengl_lab;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.texture.Texture;
@@ -17,10 +18,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.jogamp.opengl.GL.*;
@@ -32,11 +31,13 @@ public class BasicFrame implements GLEventListener {
     private FloatBuffer vertexData;
     private FloatBuffer colorData;
     private FloatBuffer textureData;
+    private ShortBuffer indexData;
     private FloatBuffer kernel;
     private int indexId;
     private int textureId;
     private int size=21;
     private float sigm=100;
+    public static final float MAX_SIGM=10;
 
     private Shader shader=null;
     private final float[] matrix={
@@ -46,10 +47,16 @@ public class BasicFrame implements GLEventListener {
             0,0,0,1f
     };
 
-    public void display(GLAutoDrawable drawable) {init(drawable);
+    private FPSAnimator animator =null;
+
+    public void display(GLAutoDrawable drawable) {
+        init(drawable);
+        System.out.println("display");
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
         final GL2 gl = drawable.getGL().getGL2();
+
+        gl.glUseProgram(shader.shaderProgram.id());
         gl.glClearColor(0,0,0,0);
 
 
@@ -58,31 +65,29 @@ public class BasicFrame implements GLEventListener {
         gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, matrix, 0);
 
 
-
-        gl.glUniform1fv(shader.kernelId,4*kernel.capacity(),kernel);
+        gl.glUniform1fv(shader.kernelId,4*kernel.capacity(),kernel.rewind());
         gl.glUniform1i(shader.kernelSizeId,size);
 
-        gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData);
-        gl.glVertexAttribPointer(shader.vertexArrayId,2,GL_FLOAT,false,0,vertexData);
-        gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData);
+        gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData.rewind());
+        gl.glVertexAttribPointer(shader.vertexArrayId,2,GL_FLOAT,false,0,vertexData.rewind());
+        gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData.rewind());
 
-        gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId);
+        gl.glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indexData.rewind());
 
-        gl.glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
     }
 
     public void dispose(GLAutoDrawable arg0) {
 
     }
 
+    int c=0;
     public void init(GLAutoDrawable glad) {
+        if(c++>2)return;
+        System.out.println("init");
         GL2 gl=glad.getGL().getGL2();
 
+
         shader=new Shader(gl);
-
-
-        ShortBuffer indexData = ByteBuffer.allocateDirect(2*3).order(ByteOrder.nativeOrder()).asShortBuffer();
-        indexData.put((short) 0).put((short) 1).put((short) 2).position(0);
 
         vertexData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
         vertexData
@@ -107,19 +112,22 @@ public class BasicFrame implements GLEventListener {
 
         makeKernel(sigm,size);
 
+
         final int[] a=new int[1];
         gl.glGenBuffers(1, a, 0);
         indexId = a[0];
-
-        gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId);
-        gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.capacity() * 2, indexData, GL_STATIC_DRAW);
-        gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
-
+        indexData = ByteBuffer.allocateDirect(2*3).order(ByteOrder.nativeOrder()).asShortBuffer();
+        indexData.put((short) 0).put((short) 1).put((short) 2).position(0);
 
         gl.glActiveTexture(GL_TEXTURE0);
         textureId = loadTexture(texturePath).getTextureObject();
         gl.glBindTexture(GL_TEXTURE_2D, textureId);
         gl.glUniform1i(shader.textureId, 0);// 0- индекс текстурного блока
+
+
+
+        //animator= new FPSAnimator(glad,60);
+        //animator.start();
     }
 
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
@@ -131,10 +139,11 @@ public class BasicFrame implements GLEventListener {
     }
 
     public float getSigm(){
-        return (float) sigm;
+        return sigm;
     }
 
     public void makeKernel(float sigm,int size){
+        System.out.println(sigm+" "+size );
         this.sigm=sigm;
         this.size=size;
         List<Float> coeff=Stream.iterate(-(size-1)/2, i->i+1).takeWhile(i->i<=(size-1)/2)
@@ -167,8 +176,6 @@ public class BasicFrame implements GLEventListener {
         final GLProfile profile = GLProfile.get(GLProfile.GL2);
         GLCapabilities capabilities = new GLCapabilities(profile);
         final GLCanvas glcanvas = new GLCanvas(capabilities);
-        Animator animator = new Animator(glcanvas);
-        animator.start();
         BasicFrame frame = new BasicFrame();
         glcanvas.addGLEventListener(frame);
         glcanvas.setSize(700, 700);
@@ -193,16 +200,28 @@ class ControlPanel extends JPanel {
         add(new JPanel(){{
             add(new Label("size"));
             add(new JComboBox<>(Stream.iterate(1, i -> i + 2).takeWhile(i -> i < 100).toArray(Integer[]::new)){{
-                setSelectedItem(1);
                 addItemListener(e->{
                     canvas.invoke(false, ee->{
                         frame.makeKernel(frame.getSigm(),(int)getSelectedItem());
                         return false;
                     });
                 });
+                setSelectedItem(11);
             }});
         }});
 
+        add(new JPanel(){{
+            add(new Label("disp"));
+            add(new JSlider(1,100,1){{
+                addChangeListener(e->{
+                    canvas.invoke(false,ee->{
+                        frame.makeKernel(BasicFrame.MAX_SIGM*getValue()/getMaximum(),frame.getSize());
+                        return false;
+                    });
+                });
+                setValue(10);
+            }});
+        }});
         /*slider.addChangeListener(e -> {
             final int val = slider.getValue();
             canvas.invoke(false, ee -> {

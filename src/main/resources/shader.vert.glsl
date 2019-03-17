@@ -10,4 +10,5 @@ void main(){
     ap_Color=a_Color;
     v_Tex_Coord=a_Tex_Coord;
     gl_Position =u_Monitor_Matrix*u_Matrix*u_Model_Matrix*a_Position;
+    //gl_Position = a_Position;
 }

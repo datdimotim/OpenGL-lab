@@ -4,7 +4,9 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import lombok.Data;
 
+@Data
 public class Shader{
     public static final String vertexShaderPath="/shader.vert.glsl";
     public static final String fragmentShaderPath="/shader.frag.glsl";
@@ -33,6 +35,7 @@ public class Shader{
     public Shader(GL2 gl){
         final String vertexShaderText=FileUtils.readTextFromRaw(vertexShaderPath);
         final ShaderCode vertexShader=new ShaderCode(GL2ES2.GL_VERTEX_SHADER,1,new CharSequence[][]{{vertexShaderText}});
+
         vertexShader.compile(gl);
         if(!vertexShader.isValid())throw new RuntimeException("vertex shader is not valid, source=\n"+vertexShaderText);
 
@@ -44,13 +47,12 @@ public class Shader{
         shaderProgram=new ShaderProgram();
         shaderProgram.add(gl,vertexShader,System.out);
         shaderProgram.add(gl,fragmentShader,System.out);
+        shaderProgram.init(gl);
         shaderProgram.link(gl,System.out);
         if(!shaderProgram.linked())throw new RuntimeException("ShaderProgram is not linked");
-        shaderProgram.useProgram(gl,true);
-
+        //shaderProgram.useProgram(gl,true);
         //////////////////////////////////////////
         //////////////////////////////////////////
-
 
         viewMatrixId = gl.glGetUniformLocation(shaderProgram.id(), VIEW_MATRIX);
         monitorMatrixId =gl.glGetUniformLocation(shaderProgram.id(), MONITOR_MATRIX);
@@ -64,6 +66,7 @@ public class Shader{
         gl.glEnableVertexAttribArray(colorArrayId);
         gl.glEnableVertexAttribArray(textureArrayId);
         gl.glEnableVertexAttribArray(vertexArrayId);
-        gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);           // enable vertex arrays
+
+        System.out.println(this);
     }
 }
