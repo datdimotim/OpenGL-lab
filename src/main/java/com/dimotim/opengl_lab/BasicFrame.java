@@ -33,7 +33,6 @@ public class BasicFrame implements GLEventListener {
     private FloatBuffer textureData;
     private ShortBuffer indexData;
     private FloatBuffer kernel;
-    private int indexId;
     private int textureId;
     private int size=21;
     private float sigm=100;
@@ -85,7 +84,7 @@ public class BasicFrame implements GLEventListener {
         if(c++>2)return;
         System.out.println("init");
         GL2 gl=glad.getGL().getGL2();
-
+        System.out.println("GL version:" + gl.glGetString(GL.GL_VERSION));
 
         shader=new Shader(gl);
 
@@ -113,9 +112,6 @@ public class BasicFrame implements GLEventListener {
         makeKernel(sigm,size);
 
 
-        final int[] a=new int[1];
-        gl.glGenBuffers(1, a, 0);
-        indexId = a[0];
         indexData = ByteBuffer.allocateDirect(2*3).order(ByteOrder.nativeOrder()).asShortBuffer();
         indexData.put((short) 0).put((short) 1).put((short) 2).position(0);
 

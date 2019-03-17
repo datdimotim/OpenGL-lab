@@ -22,5 +22,4 @@ void main(){
     }
 
     gl_FragColor = sum;
-    //gl_FragColor= textureColor;
 }
