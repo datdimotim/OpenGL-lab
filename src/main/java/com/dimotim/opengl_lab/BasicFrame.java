@@ -3,10 +3,7 @@ package com.dimotim.opengl_lab;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.glsl.ShaderCode;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
@@ -14,30 +11,18 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.jogamp.opengl.GL.*;
-import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 
 
 public class BasicFrame implements GLEventListener {
     public static final String texturePath="/texture.png";
 
-    private FloatBuffer vertexData;
-    private FloatBuffer normalData;
-    //private FloatBuffer colorData;
-    //private FloatBuffer textureData;
-    private ShortBuffer indexData;
     private int textureId;
+
+    private final LystraHead lystraHead=new LystraHead();
+    private final TorHead torHead=new TorHead();
 
     private Shader shader=null;
     private final float[] matrix={
@@ -49,19 +34,6 @@ public class BasicFrame implements GLEventListener {
 
     private double angleX=0;
     private double dx=2*Math.PI/60/5;
-    private final float[] matrix1={
-            1f,0,0,0,
-            0,(float) Math.cos(angleX),-(float)Math.sin(angleX),0,
-            0,(float) Math.sin(angleX), (float)Math.cos(angleX),0,
-            0,0,0,1f
-    };
-
-
-    private final int np=10;
-    private final int nt=10;
-    private static final double scale=3;
-    private static final double R=0.10*scale;
-    private static final double r=0.05*scale;
 
 
     private float[] getAnimMatrix(){
@@ -87,19 +59,16 @@ public class BasicFrame implements GLEventListener {
         gl.glDepthFunc(GL_LESS);
         gl.glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-        //gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
+        gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_FILL);
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, getAnimMatrix(), 0);
 
-        //gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData.rewind());
-        gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
-        gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
-        //gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData.rewind());
 
-        gl.glDrawElements(GL_QUADS, 4*np*nt, GL_UNSIGNED_SHORT, indexData.rewind());
+        torHead.draw(gl,shader);
+        lystraHead.draw(gl,shader);
 
     }
 
@@ -107,7 +76,7 @@ public class BasicFrame implements GLEventListener {
 
     }
 
-    int c=0;
+    private int c=0;
     public void init(GLAutoDrawable glad) {
         if(c++>2)return;
         System.out.println("init");
@@ -115,55 +84,8 @@ public class BasicFrame implements GLEventListener {
         System.out.println("GL version:" + gl.glGetString(GL.GL_VERSION));
 
         shader=new Shader(gl);
-
-        List<ArrayList<double[]>> fig=genTor(np,nt);
-        List<Integer> figIdx=genTorIdx(np,nt);
-
-        vertexData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        normalData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        for(ArrayList<double[]> gran:fig){
-            double[] n=vecMul(gran.get(0),gran.get(1),gran.get(2));
-            for(double[] pt:gran){
-                vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
-                normalData.put((float) n[0]).put((float)n[1]).put((float)n[2]);
-            }
-        }
-        vertexData.position(0);
-        normalData.position(0);
-
-        indexData = ByteBuffer.allocateDirect(2*4*np*nt).order(ByteOrder.nativeOrder()).asShortBuffer();
-        for(int i:figIdx)indexData.put((short) i);
-        indexData.position(0);
-
-        //textureData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        //textureData
-        //        .put(0).put(0)
-        //        .put(0).put(0.3f)
-        //        .put(0.3f).put(0.3f)
-        //        .position(0);
-
-        //colorData = ByteBuffer.allocateDirect(4*3*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        //colorData
-        //        .put(0.8f).put(0.8f).put(0)
-        //        .put(0).put(0.8f).put(0)
-        //        .put(0.8f).put(0.3f).put(0)
-        //        .position(0);
-
-
-        gl.glActiveTexture(GL_TEXTURE0);
-        textureId = loadTexture(texturePath).getTextureObject();
-        gl.glBindTexture(GL_TEXTURE_2D, textureId);
-        gl.glUniform1i(shader.textureId, 0);// 0- индекс текстурного блока
-
     }
 
-
-    private static double[] vecMul(double[] o,double[] a, double[] b){
-        double[] oa={a[0]-o[0],a[1]-o[1],a[2]-o[2]};
-        double[] ob={b[0]-o[0],b[1]-o[1],b[2]-o[2]};
-
-        return new double[]{oa[1]*ob[2]-oa[2]*ob[1], -(oa[0]*ob[2]-oa[2]*ob[0]), oa[0]*ob[1]-oa[1]*ob[0]};
-    }
 
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
 
@@ -202,41 +124,7 @@ public class BasicFrame implements GLEventListener {
         window.setVisible(true);
     }
 
-    private static double[] genPt(double p, double t){
-        return new double[]{
-                Math.cos(t)*(R-r*Math.cos(p)),
-                Math.sin(t)*(R-r*Math.cos(p)),
-                r*Math.sin(p)
-        };
-    }
 
-    private static ArrayList<double[]> genGran(double p,double t, int np, int nt){
-        final double dp=2*Math.PI/np;
-        final double dt=2*Math.PI/nt;
-
-        ArrayList<double[]> list=new ArrayList<>();
-        list.add(genPt(p,t));
-        list.add(genPt(p,t+dt));
-        list.add(genPt(p+dp,t+dt));
-        list.add(genPt(p+dp,t));
-        return list;
-    }
-
-    private static ArrayList<ArrayList<double[]>> genTor(final int np, final int nt) {
-        final double dp=2*Math.PI/np;
-        final double dt=2*Math.PI/nt;
-        ArrayList<ArrayList<double[]>> lists = new ArrayList<>();
-        for (int i = 0; i < np; i++) {
-            for (int j = 0; j < nt; j++) {
-                lists.add(genGran(dp*i,dt*j,np,nt));
-            }
-        }
-        return lists;
-    }
-
-    private static List<Integer> genTorIdx(final int np,final int nt){
-        return Stream.iterate(0, i->i+1).takeWhile(i->i<np*nt*4).collect(Collectors.toList());
-    }
 }
 
 class ControlPanel extends JPanel {
@@ -268,13 +156,5 @@ class ControlPanel extends JPanel {
                 setValue(10);
             }});
         }});
-        /*slider.addChangeListener(e -> {
-            final int val = slider.getValue();
-            canvas.invoke(false, ee -> {
-                frame.points.get(finalI).weigh = val;
-                return false;
-            });
-        });*/
-
     }
 }

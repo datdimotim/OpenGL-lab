@@ -6,9 +6,10 @@ varying vec3 normal;
 void main(){
     vec4 textureColor=texture2D(u_texture, v_Tex_Coord);
     const vec4 diffColor = vec4 (0.0, 0.5, 0.0, 1.0);
-    const vec3 l2   = vec3(0,0,1);
+    const vec3 l2   = vec3(0,1,1);
+    vec3 l2n = normalize(l2);
     vec3 n2   = normalize (normal);
-    vec4 diff = diffColor * max(dot( n2, l2),0.0);
+    vec4 diff = diffColor * abs(dot( n2, l2n));
     gl_FragColor = diff;
     //gl_FragColor=vec4(0,0,1,1);
 }
