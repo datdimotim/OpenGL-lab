@@ -60,8 +60,8 @@ public class BasicFrame implements GLEventListener {
     private final int np=10;
     private final int nt=10;
     private static final double scale=3;
-    private static final double R=0.1*scale;
-    private static final double r=0.2*scale;
+    private static final double R=0.10*scale;
+    private static final double r=0.05*scale;
 
 
     private float[] getAnimMatrix(){
@@ -87,7 +87,7 @@ public class BasicFrame implements GLEventListener {
         gl.glDepthFunc(GL_LESS);
         gl.glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-        gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
+        //gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
@@ -204,8 +204,8 @@ public class BasicFrame implements GLEventListener {
 
     private static double[] genPt(double p, double t){
         return new double[]{
-                Math.cos(t)*r*Math.cos(p)-Math.sin(t)*R,
-                Math.sin(t)*r*Math.cos(p)+Math.cos(t)*R,
+                Math.cos(t)*(R-r*Math.cos(p)),
+                Math.sin(t)*(R-r*Math.cos(p)),
                 r*Math.sin(p)
         };
     }
