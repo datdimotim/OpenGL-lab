@@ -19,6 +19,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -32,6 +33,7 @@ public class BasicFrame implements GLEventListener {
     public static final String texturePath="/texture.png";
 
     private FloatBuffer vertexData;
+    private FloatBuffer normalData;
     //private FloatBuffer colorData;
     //private FloatBuffer textureData;
     private ShortBuffer indexData;
@@ -45,7 +47,8 @@ public class BasicFrame implements GLEventListener {
             0,0,0,1f
     };
 
-    private final double angleX=Math.PI/2;
+    private double angleX=0;
+    private double dx=2*Math.PI/60/5;
     private final float[] matrix1={
             1f,0,0,0,
             0,(float) Math.cos(angleX),-(float)Math.sin(angleX),0,
@@ -60,6 +63,17 @@ public class BasicFrame implements GLEventListener {
     private static final double R=0.1*scale;
     private static final double r=0.2*scale;
 
+
+    private float[] getAnimMatrix(){
+        angleX+=dx;
+        return new float[]{
+                1f,0,0,0,
+                0,(float) Math.cos(angleX),-(float)Math.sin(angleX),0,
+                0,(float) Math.sin(angleX), (float)Math.cos(angleX),0,
+                0,0,0,1f
+        };
+    }
+
     public void display(GLAutoDrawable drawable) {
         init(drawable);
         System.out.println("display");
@@ -71,16 +85,18 @@ public class BasicFrame implements GLEventListener {
         gl.glClearColor(0,0,0,0);
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
-        gl.glClear(GL_DEPTH_BUFFER_BIT);
-        //gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
+        gl.glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+
+        gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, matrix, 0);
-        gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, matrix1, 0);
+        gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, getAnimMatrix(), 0);
 
         //gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData.rewind());
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
+        gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
         //gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData.rewind());
 
         gl.glDrawElements(GL_QUADS, 4*np*nt, GL_UNSIGNED_SHORT, indexData.rewind());
@@ -104,12 +120,16 @@ public class BasicFrame implements GLEventListener {
         List<Integer> figIdx=genTorIdx(np,nt);
 
         vertexData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        normalData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for(ArrayList<double[]> gran:fig){
+            double[] n=vecMul(gran.get(0),gran.get(1),gran.get(2));
             for(double[] pt:gran){
                 vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
+                normalData.put((float) n[0]).put((float)n[1]).put((float)n[2]);
             }
         }
         vertexData.position(0);
+        normalData.position(0);
 
         indexData = ByteBuffer.allocateDirect(2*4*np*nt).order(ByteOrder.nativeOrder()).asShortBuffer();
         for(int i:figIdx)indexData.put((short) i);
@@ -135,6 +155,14 @@ public class BasicFrame implements GLEventListener {
         gl.glBindTexture(GL_TEXTURE_2D, textureId);
         gl.glUniform1i(shader.textureId, 0);// 0- индекс текстурного блока
 
+    }
+
+
+    private static double[] vecMul(double[] o,double[] a, double[] b){
+        double[] oa={a[0]-o[0],a[1]-o[1],a[2]-o[2]};
+        double[] ob={b[0]-o[0],b[1]-o[1],b[2]-o[2]};
+
+        return new double[]{oa[1]*ob[2]-oa[2]*ob[1], -(oa[0]*ob[2]-oa[2]*ob[0]), oa[0]*ob[1]-oa[1]*ob[0]};
     }
 
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
@@ -167,6 +195,7 @@ public class BasicFrame implements GLEventListener {
 
         final JFrame window = new JFrame("Basic Frame");
 
+        new FPSAnimator(glcanvas,60).start();
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setContentPane(content);
         window.pack();

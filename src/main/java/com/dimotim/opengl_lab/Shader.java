@@ -18,6 +18,7 @@ public class Shader{
     public static final String VERTEX_ARRAY="a_Position";
     public static final String TEXTURE_ARRAY="a_Tex_Coord";
     public static final String TEXTURE="u_texture";
+    public static final String NORMAL="a_normal";
 
     public final ShaderProgram shaderProgram;
     public final int monitorMatrixId;
@@ -27,6 +28,7 @@ public class Shader{
     public final int vertexArrayId;
     public final int textureArrayId;
     public final int textureId;
+    public final int normalId;
 
     public Shader(GL2 gl){
         final String vertexShaderText=FileUtils.readTextFromRaw(vertexShaderPath);
@@ -57,9 +59,11 @@ public class Shader{
         colorArrayId = gl.glGetAttribLocation(shaderProgram.id(), COLOR_ARRAY);
         vertexArrayId = gl.glGetAttribLocation(shaderProgram.id(), VERTEX_ARRAY);
         textureArrayId=gl.glGetAttribLocation(shaderProgram.id(), TEXTURE_ARRAY);
+        normalId=gl.glGetAttribLocation(shaderProgram.id(),NORMAL);
         gl.glEnableVertexAttribArray(colorArrayId);
         gl.glEnableVertexAttribArray(textureArrayId);
         gl.glEnableVertexAttribArray(vertexArrayId);
+        gl.glEnableVertexAttribArray(normalId);
 
         System.out.println(this);
     }
