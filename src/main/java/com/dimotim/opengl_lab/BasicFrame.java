@@ -18,25 +18,24 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 
 
 public class BasicFrame implements GLEventListener {
     public static final String texturePath="/texture.png";
 
     private FloatBuffer vertexData;
-    private FloatBuffer colorData;
-    private FloatBuffer textureData;
+    //private FloatBuffer colorData;
+    //private FloatBuffer textureData;
     private ShortBuffer indexData;
-    private FloatBuffer kernel;
     private int textureId;
-    private int size=21;
-    private float sigm=100;
-    public static final float MAX_SIGM=10;
 
     private Shader shader=null;
     private final float[] matrix={
@@ -46,7 +45,20 @@ public class BasicFrame implements GLEventListener {
             0,0,0,1f
     };
 
-    private FPSAnimator animator =null;
+    private final double angleX=Math.PI/2;
+    private final float[] matrix1={
+            1f,0,0,0,
+            0,(float) Math.cos(angleX),-(float)Math.sin(angleX),0,
+            0,(float) Math.sin(angleX), (float)Math.cos(angleX),0,
+            0,0,0,1f
+    };
+
+
+    private final int np=10;
+    private final int nt=10;
+    private static final double scale=3;
+    private static final double R=0.1*scale;
+    private static final double r=0.2*scale;
 
     public void display(GLAutoDrawable drawable) {
         init(drawable);
@@ -57,21 +69,21 @@ public class BasicFrame implements GLEventListener {
 
         gl.glUseProgram(shader.shaderProgram.id());
         gl.glClearColor(0,0,0,0);
+        gl.glEnable(GL_DEPTH_TEST);
+        gl.glDepthFunc(GL_LESS);
+        gl.glClear(GL_DEPTH_BUFFER_BIT);
+        //gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, matrix, 0);
-        gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, matrix, 0);
+        gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, matrix1, 0);
 
+        //gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData.rewind());
+        gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
+        //gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData.rewind());
 
-        gl.glUniform1fv(shader.kernelId,4*kernel.capacity(),kernel.rewind());
-        gl.glUniform1i(shader.kernelSizeId,size);
-
-        gl.glVertexAttribPointer(shader.colorArrayId, 3, GL_FLOAT, false, 0, colorData.rewind());
-        gl.glVertexAttribPointer(shader.vertexArrayId,2,GL_FLOAT,false,0,vertexData.rewind());
-        gl.glVertexAttribPointer(shader.textureArrayId,2,GL_FLOAT,false,0,textureData.rewind());
-
-        gl.glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indexData.rewind());
+        gl.glDrawElements(GL_QUADS, 4*np*nt, GL_UNSIGNED_SHORT, indexData.rewind());
 
     }
 
@@ -88,74 +100,47 @@ public class BasicFrame implements GLEventListener {
 
         shader=new Shader(gl);
 
-        vertexData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        vertexData
-                .put(-0.8f).put(-0.8f)
-                .put(0).put(0.8f)
-                .put(0.8f).put(-0.8f)
-                .position(0);
+        List<ArrayList<double[]>> fig=genTor(np,nt);
+        List<Integer> figIdx=genTorIdx(np,nt);
 
-        textureData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        textureData
-                .put(0).put(0)
-                .put(0).put(0.3f)
-                .put(0.3f).put(0.3f)
-                .position(0);
+        vertexData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        for(ArrayList<double[]> gran:fig){
+            for(double[] pt:gran){
+                vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
+            }
+        }
+        vertexData.position(0);
 
-        colorData = ByteBuffer.allocateDirect(4*3*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        colorData
-                .put(0.8f).put(0.8f).put(0)
-                .put(0).put(0.8f).put(0)
-                .put(0.8f).put(0.3f).put(0)
-                .position(0);
+        indexData = ByteBuffer.allocateDirect(2*4*np*nt).order(ByteOrder.nativeOrder()).asShortBuffer();
+        for(int i:figIdx)indexData.put((short) i);
+        indexData.position(0);
 
-        makeKernel(sigm,size);
+        //textureData = ByteBuffer.allocateDirect(4*2*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        //textureData
+        //        .put(0).put(0)
+        //        .put(0).put(0.3f)
+        //        .put(0.3f).put(0.3f)
+        //        .position(0);
 
+        //colorData = ByteBuffer.allocateDirect(4*3*3).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        //colorData
+        //        .put(0.8f).put(0.8f).put(0)
+        //        .put(0).put(0.8f).put(0)
+        //        .put(0.8f).put(0.3f).put(0)
+        //        .position(0);
 
-        indexData = ByteBuffer.allocateDirect(2*3).order(ByteOrder.nativeOrder()).asShortBuffer();
-        indexData.put((short) 0).put((short) 1).put((short) 2).position(0);
 
         gl.glActiveTexture(GL_TEXTURE0);
         textureId = loadTexture(texturePath).getTextureObject();
         gl.glBindTexture(GL_TEXTURE_2D, textureId);
         gl.glUniform1i(shader.textureId, 0);// 0- индекс текстурного блока
 
-
-
-        //animator= new FPSAnimator(glad,60);
-        //animator.start();
     }
 
     public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
 
     }
 
-    public int getSize(){
-        return size;
-    }
-
-    public float getSigm(){
-        return sigm;
-    }
-
-    public void makeKernel(float sigm,int size){
-        System.out.println(sigm+" "+size );
-        this.sigm=sigm;
-        this.size=size;
-        List<Float> coeff=Stream.iterate(-(size-1)/2, i->i+1).takeWhile(i->i<=(size-1)/2)
-                .map(i->(float)(Math.pow(2*Math.PI*sigm,-0.25)*Math.exp(-i*i/2.0/sigm/sigm)))
-                .collect(Collectors.toList());
-        double sum=0;
-        for (double i:coeff){
-            for (double j:coeff){
-                sum+=i*j;
-            }
-        }
-        final double norm=sum;
-        kernel=ByteBuffer.allocateDirect(size*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        coeff.forEach(f->kernel.put((float)(f/Math.sqrt(norm))));
-        kernel.position(0);
-    }
 
     private static Texture loadTexture(String file){
         try {
@@ -187,6 +172,42 @@ public class BasicFrame implements GLEventListener {
         window.pack();
         window.setVisible(true);
     }
+
+    private static double[] genPt(double p, double t){
+        return new double[]{
+                Math.cos(t)*r*Math.cos(p)-Math.sin(t)*R,
+                Math.sin(t)*r*Math.cos(p)+Math.cos(t)*R,
+                r*Math.sin(p)
+        };
+    }
+
+    private static ArrayList<double[]> genGran(double p,double t, int np, int nt){
+        final double dp=2*Math.PI/np;
+        final double dt=2*Math.PI/nt;
+
+        ArrayList<double[]> list=new ArrayList<>();
+        list.add(genPt(p,t));
+        list.add(genPt(p,t+dt));
+        list.add(genPt(p+dp,t+dt));
+        list.add(genPt(p+dp,t));
+        return list;
+    }
+
+    private static ArrayList<ArrayList<double[]>> genTor(final int np, final int nt) {
+        final double dp=2*Math.PI/np;
+        final double dt=2*Math.PI/nt;
+        ArrayList<ArrayList<double[]>> lists = new ArrayList<>();
+        for (int i = 0; i < np; i++) {
+            for (int j = 0; j < nt; j++) {
+                lists.add(genGran(dp*i,dt*j,np,nt));
+            }
+        }
+        return lists;
+    }
+
+    private static List<Integer> genTorIdx(final int np,final int nt){
+        return Stream.iterate(0, i->i+1).takeWhile(i->i<np*nt*4).collect(Collectors.toList());
+    }
 }
 
 class ControlPanel extends JPanel {
@@ -198,7 +219,7 @@ class ControlPanel extends JPanel {
             add(new JComboBox<>(Stream.iterate(1, i -> i + 2).takeWhile(i -> i < 100).toArray(Integer[]::new)){{
                 addItemListener(e->{
                     canvas.invoke(false, ee->{
-                        frame.makeKernel(frame.getSigm(),(int)getSelectedItem());
+                        //frame.makeKernel(frame.getSigm(),(int)getSelectedItem());
                         return false;
                     });
                 });
@@ -211,7 +232,7 @@ class ControlPanel extends JPanel {
             add(new JSlider(1,100,1){{
                 addChangeListener(e->{
                     canvas.invoke(false,ee->{
-                        frame.makeKernel(BasicFrame.MAX_SIGM*getValue()/getMaximum(),frame.getSize());
+                        //frame.makeKernel(BasicFrame.MAX_SIGM*getValue()/getMaximum(),frame.getSize());
                         return false;
                     });
                 });

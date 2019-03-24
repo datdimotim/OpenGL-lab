@@ -18,8 +18,6 @@ public class Shader{
     public static final String VERTEX_ARRAY="a_Position";
     public static final String TEXTURE_ARRAY="a_Tex_Coord";
     public static final String TEXTURE="u_texture";
-    public static final String KERNEL="u_kern";
-    public static final String KERNEL_SIZE="u_kern_size";
 
     public final ShaderProgram shaderProgram;
     public final int monitorMatrixId;
@@ -29,8 +27,6 @@ public class Shader{
     public final int vertexArrayId;
     public final int textureArrayId;
     public final int textureId;
-    public final int kernelId;
-    public final int kernelSizeId;
 
     public Shader(GL2 gl){
         final String vertexShaderText=FileUtils.readTextFromRaw(vertexShaderPath);
@@ -57,8 +53,6 @@ public class Shader{
         viewMatrixId = gl.glGetUniformLocation(shaderProgram.id(), VIEW_MATRIX);
         monitorMatrixId =gl.glGetUniformLocation(shaderProgram.id(), MONITOR_MATRIX);
         textureId = gl.glGetUniformLocation(shaderProgram.id(), TEXTURE);
-        kernelId=gl.glGetUniformLocation(shaderProgram.id(),KERNEL);
-        kernelSizeId=gl.glGetUniformLocation(shaderProgram.id(),KERNEL_SIZE);
         modelMatrixId =gl.glGetUniformLocation(shaderProgram.id(), MODEL_MATRIX);
         colorArrayId = gl.glGetAttribLocation(shaderProgram.id(), COLOR_ARRAY);
         vertexArrayId = gl.glGetAttribLocation(shaderProgram.id(), VERTEX_ARRAY);
