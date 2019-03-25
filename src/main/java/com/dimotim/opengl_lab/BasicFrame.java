@@ -55,7 +55,30 @@ public class BasicFrame implements GLEventListener {
     private float dtx=0.01f;
     private float dty=0.01f;
     private float dtz = 0.01f;
-
+    private float scaleX = 1;
+    private float scaleY = 1;
+    private float scaleZ = 1;
+    public void increaseScaleX(){
+        scaleX+=0.1;
+    }
+    public void increaseScaleY(){
+        scaleY+=0.1;
+    }
+    public void increaseScaleZ(){
+        scaleZ+=0.1;
+    }
+    public void decreaseScaleX(){
+        if (scaleX<=0.2) return;
+        scaleX-=0.1;
+    }
+    public void decreaseScaleY(){
+        if (scaleY<=0.5) return;
+        scaleY-=0.1;
+    }
+    public void decreaseScaleZ(){
+        if (scaleZ<=0.5)return;
+        scaleZ-=0.1;
+    }
     public void increaseDtx(){
         dtx+=0.01;
     }
@@ -93,6 +116,14 @@ public class BasicFrame implements GLEventListener {
                 0, 1f, 0, 0,
                 0, 0, 1f, 0,
                 (float) dx, (float) dy, (float) dz, 1f
+        };
+    }
+    private static float[] scaleFull(double dx, double dy, double dz) {
+        return new float[]{
+                (float) dx, 0, 0, 0,
+                0, (float) dy, 0, 0,
+                0, 0,(float) dz, 0,
+                0, 0, 0, 1f
         };
     }
 
@@ -156,7 +187,7 @@ public class BasicFrame implements GLEventListener {
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false,
-                LinAl.matrixMul(LinAl.matrixMul(getXAnimMatrix(),getYAnimMatrix()),getZAnimMatrix()), 0);
+                LinAl.matrixMul(scaleFull(scaleX,scaleY,scaleZ),LinAl.matrixMul(LinAl.matrixMul(getXAnimMatrix(),getYAnimMatrix()),getZAnimMatrix())), 0);
         gl.glUniform1f(shader.intensivnost_blue_Id, blue);
         gl.glUniform1f(shader.intensivnost_red_Id, red);
         gl.glUniform1f(shader.intensivnost_green_Id, green);
@@ -372,6 +403,7 @@ class ControlPanel extends JPanel {
                     });
                 });
             }});
+            add (new JLabel("      "));
             add(new JButton("Rotate Y"){{
                 this.addChangeListener(e->{
                     canvas.invoke(false, ee -> {
@@ -391,6 +423,60 @@ class ControlPanel extends JPanel {
             }});
 
         }});
+
+        add(new JPanel() {{
+            add(new JButton("x+"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.increaseScaleX();
+                        return false;
+                    });
+                });
+            }});
+            add(new JButton("x-"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.decreaseScaleX();
+                        return false;
+                    });
+                });
+            }});
+            add (new JLabel("      "));
+            add(new JButton("y+"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.increaseScaleY();
+                        return false;
+                    });
+                });
+            }});
+            add(new JButton("y-"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.decreaseScaleY();
+                        return false;
+                    });
+                });
+            }});
+            add (new JLabel("      "));
+            add(new JButton("z+"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.increaseScaleZ();
+                        return false;
+                    });
+                });
+            }});
+            add(new JButton("z-"){{
+                this.addChangeListener(e->{
+                    canvas.invoke(false, ee -> {
+                        frame.decreaseScaleZ();
+                        return false;
+                    });
+                });
+            }});
+        }});
+
 
     }
 }
