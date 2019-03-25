@@ -10,6 +10,6 @@ void main(){
     vec3 l2n = normalize(l2);
     vec3 n2   = normalize (normal);
     vec4 diff = diffColor * max(dot( n2, l2n),0.0);
-    gl_FragColor = diff+vec4(0.5,0.2,0,1);
+    gl_FragColor = diff+vec4(0,0.2,0.5,1);
     //gl_FragColor=vec4(0,0,1,1);
 }

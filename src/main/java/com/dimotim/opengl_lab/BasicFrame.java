@@ -23,7 +23,7 @@ public class BasicFrame implements GLEventListener {
 
     private final LystraHead lystraHead=new LystraHead();
     private final TorHead torHead=new TorHead(-Math.PI/2,2*Math.PI/3,0,2*Math.PI);
-
+    private final TorHead torFull=new TorHead(0,2*Math.PI,0,2*Math.PI);
     private Shader shader=null;
     private final float[] matrix={
             1f,0,0,0,
@@ -68,7 +68,7 @@ public class BasicFrame implements GLEventListener {
         gl.glDepthFunc(GL_LESS);
         gl.glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-        gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_FILL);
+        gl.glPolygonMode(GL_FRONT_AND_BACK,GL2GL3.GL_LINE);
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
@@ -78,6 +78,8 @@ public class BasicFrame implements GLEventListener {
         torHead.draw(gl,shader);
         gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, translate(0,0,0.1), 0);
         lystraHead.draw(gl,shader);
+        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, translate(0,0,-0.3), 0);
+        torFull.draw(gl,shader);
 
     }
 
