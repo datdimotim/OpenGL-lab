@@ -20,7 +20,7 @@ public class LystraHead{
     private static final double R=0.15*scale;
     private static final double r=0.1*scale;
     private static final double H = 0.15*scale;
-    private int nt = 15;
+    int nt = 15;
 
     private ShortBuffer indexData;
     private FloatBuffer vertexData;
@@ -63,7 +63,8 @@ public class LystraHead{
     private static List<Integer> genTorIdx(final int nt){
         return Stream.iterate(0, i->i+1).takeWhile(i->i<nt*4).collect(Collectors.toList());
     }
-    LystraHead(){
+    LystraHead( int melkost){
+        this.nt = melkost;
         List<ArrayList<double[]>> fig=genLystra(nt);
         List<Integer> figIdx=genTorIdx(nt);
 
@@ -99,7 +100,7 @@ public class LystraHead{
 
 
     }
-    public void draw( GL2 gl, Shader shader ){
+    public void draw( GL2 gl, Shader shader){
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
         gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
 

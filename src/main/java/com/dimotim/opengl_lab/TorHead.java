@@ -65,12 +65,13 @@ public class TorHead{
         }
         return lists;
     }
-    public TorHead(double pStart, double pFinish, double tStart, double tFinish){
+    public TorHead(double pStart, double pFinish, double tStart, double tFinish, int melkost){
         this.pStart=pStart;
         this.pFinish=pFinish;
         this.tStart=tStart;
         this.tFinish=tFinish;
-
+        this.nt = melkost;
+        this.np = melkost;
         List<ArrayList<double[]>> fig=genTor(np,nt);
         List<Integer> figIdx=genTorIdx(np,nt);
 
@@ -90,7 +91,9 @@ public class TorHead{
         for(int i:figIdx)indexData.put((short) i);
         indexData.position(0);
     }
-    public void draw(GL2 gl, Shader shader ){
+    public void draw(GL2 gl, Shader shader){
+
+
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
         gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
         gl.glDrawElements(GL_QUADS, 4*np*nt, GL_UNSIGNED_SHORT, indexData.rewind());
