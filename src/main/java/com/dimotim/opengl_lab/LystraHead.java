@@ -17,10 +17,10 @@ import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 
 public class LystraHead{
     private static final double scale=3;
-    private static final double R=0.2*scale;
+    private static final double R=0.15*scale;
     private static final double r=0.1*scale;
-    private static final double H = 0.2*scale;
-    private int nt = 15*10;
+    private static final double H = 0.15*scale;
+    private int nt = 15;
 
     private ShortBuffer indexData;
     private FloatBuffer vertexData;

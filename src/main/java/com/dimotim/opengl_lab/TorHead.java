@@ -16,11 +16,17 @@ import static com.jogamp.opengl.GL.GL_UNSIGNED_SHORT;
 import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 
 public class TorHead{
-    private int nt = 15*10;
-    private int np = 15*10;
+    private int nt = 15;
+    private int np = 15;
     private static final double scale=3;
     private static final double R=0.1*scale;
     private static final double r=0.05*scale;
+
+    private final double pStart;
+    private final double pFinish;
+    private final double tStart;
+    private final double tFinish;
+
     private FloatBuffer vertexData;
     private FloatBuffer normalData;
     private ShortBuffer indexData;
@@ -36,9 +42,9 @@ public class TorHead{
         };
     }
 
-    private static ArrayList<double[]> genGran(double p,double t, int np, int nt){
-        final double dp=2*Math.PI/np;
-        final double dt=2*Math.PI/nt;
+    private ArrayList<double[]> genGran(double p,double t, int np, int nt){
+        final double dp=(pFinish-pStart)/np;
+        final double dt=(tFinish-tStart)/nt;
 
         ArrayList<double[]> list=new ArrayList<>();
         list.add(genPt(p,t));
@@ -48,18 +54,23 @@ public class TorHead{
         return list;
     }
 
-    private static ArrayList<ArrayList<double[]>> genTor(final int np, final int nt) {
-        final double dp=2*Math.PI/np;
-        final double dt=2*Math.PI/nt;
+    private ArrayList<ArrayList<double[]>> genTor(final int np, final int nt) {
+        final double dp=(pFinish-pStart)/np;
+        final double dt=(tFinish-tStart)/nt;
         ArrayList<ArrayList<double[]>> lists = new ArrayList<>();
         for (int i = 0; i < np; i++) {
             for (int j = 0; j < nt; j++) {
-                lists.add(genGran(dp*i,dt*j,np,nt));
+                lists.add(genGran(pStart+dp*i,tStart+dt*j,np,nt));
             }
         }
         return lists;
     }
-    TorHead(){
+    public TorHead(double pStart, double pFinish, double tStart, double tFinish){
+        this.pStart=pStart;
+        this.pFinish=pFinish;
+        this.tStart=tStart;
+        this.tFinish=tFinish;
+
         List<ArrayList<double[]>> fig=genTor(np,nt);
         List<Integer> figIdx=genTorIdx(np,nt);
 
@@ -78,7 +89,6 @@ public class TorHead{
         indexData = ByteBuffer.allocateDirect(2*4*np*nt).order(ByteOrder.nativeOrder()).asShortBuffer();
         for(int i:figIdx)indexData.put((short) i);
         indexData.position(0);
-
     }
     public void draw(GL2 gl, Shader shader ){
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());

@@ -22,7 +22,7 @@ public class BasicFrame implements GLEventListener {
     private int textureId;
 
     private final LystraHead lystraHead=new LystraHead();
-    private final TorHead torHead=new TorHead();
+    private final TorHead torHead=new TorHead(-Math.PI/2,2*Math.PI/3,0,2*Math.PI);
 
     private Shader shader=null;
     private final float[] matrix={
@@ -31,6 +31,15 @@ public class BasicFrame implements GLEventListener {
             0,0,1f,0,
             0,0,0,1f
     };
+
+    private static float[] translate(double dx, double dy, double dz){
+        return new float[]{
+                1f,0,0,0,
+                0,1f,0,0,
+                0,0,1f,0,
+                (float) dx,(float) dy,(float) dz,1f
+        };
+    }
 
     private double angleX=0;
     private double dx=2*Math.PI/60/5;
@@ -63,11 +72,11 @@ public class BasicFrame implements GLEventListener {
 
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
-        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, getAnimMatrix(), 0);
 
-
+        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, matrix, 0);
         torHead.draw(gl,shader);
+        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, translate(0,0,0.1), 0);
         lystraHead.draw(gl,shader);
 
     }
