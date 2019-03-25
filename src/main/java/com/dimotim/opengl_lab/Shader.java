@@ -19,6 +19,9 @@ public class Shader{
     public static final String TEXTURE_ARRAY="a_Tex_Coord";
     public static final String TEXTURE="u_texture";
     public static final String NORMAL="a_normal";
+    public static final String INTENSIVNOST_BLUE = "u_iblue";
+    public static final String INTENSIVNOST_RED = "u_ired";
+    public static final String INTENSIVNOST_GREEN = "u_igreen";
 
     public final ShaderProgram shaderProgram;
     public final int monitorMatrixId;
@@ -29,6 +32,9 @@ public class Shader{
     public final int textureArrayId;
     public final int textureId;
     public final int normalId;
+    public final int intensivnost_blue_Id;
+    public final int intensivnost_green_Id;
+    public final int intensivnost_red_Id;
 
     public Shader(GL2 gl){
         final String vertexShaderText=FileUtils.readTextFromRaw(vertexShaderPath);
@@ -60,6 +66,10 @@ public class Shader{
         vertexArrayId = gl.glGetAttribLocation(shaderProgram.id(), VERTEX_ARRAY);
         textureArrayId=gl.glGetAttribLocation(shaderProgram.id(), TEXTURE_ARRAY);
         normalId=gl.glGetAttribLocation(shaderProgram.id(),NORMAL);
+        intensivnost_blue_Id = gl.glGetUniformLocation(shaderProgram.id(),INTENSIVNOST_BLUE);
+        intensivnost_green_Id = gl.glGetUniformLocation(shaderProgram.id(),INTENSIVNOST_GREEN);
+        intensivnost_red_Id = gl.glGetUniformLocation(shaderProgram.id(),INTENSIVNOST_RED);
+
         gl.glEnableVertexAttribArray(colorArrayId);
         gl.glEnableVertexAttribArray(textureArrayId);
         gl.glEnableVertexAttribArray(vertexArrayId);
