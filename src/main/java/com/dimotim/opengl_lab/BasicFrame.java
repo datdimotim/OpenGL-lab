@@ -69,6 +69,12 @@ public class BasicFrame implements GLEventListener {
             0, 0, 0, 1f
     };
     public void changeObserverMatrix(double[] where, double [] up){
+        float normWhere = (float) Math.sqrt(Math.pow(where[0],2)+Math.pow(where[1],2)+Math.pow(where[2],2));
+        float normUp = (float) Math.sqrt(Math.pow(up[0],2)+Math.pow(up[1],2)+Math.pow(up[2],2));
+        for (int i = 0; i < up.length; i++) {
+            up[i]=up[i]/normUp;
+            where[i]=where[i]/normWhere;
+        }
         for (int i = 0; i < where.length; i++) {
             matrix[i*4] = (float) where[i];
         }
@@ -86,6 +92,23 @@ public class BasicFrame implements GLEventListener {
             matrix[i*4+3]=0;
         }
         matrix[15]=1;
+/*
+        for (int i = 0; i < where.length; i++) {
+            matrix[i] = (float)where[i];
+        }
+        matrix[3]=0;
+        for (int i = 0; i < up.length; i++) {
+            matrix[i+4] = (float) up[i];
+        }
+        matrix[7]=0;
+        double[] vecMul = LinAl.vecMulNormal(where,up);
+        for (int i = 0; i < vecMul.length; i++) {
+            matrix[i+8] = (float)vecMul[i];
+        }
+        for (int i = 0; i < 4; i++) {
+            matrix[i+12]=0;
+        }
+        matrix[15]=1;*/
     }
     public void setNetShow(boolean isLine) {
         if (isLine) this.isShowNet = GL2GL3.GL_LINE;
@@ -131,29 +154,29 @@ public class BasicFrame implements GLEventListener {
     }
     public void decreaseScaleZ(){
         if (scaleZ<=0.5)return;
-        scaleZ-=0.1;
+        scaleZ-=0.3;
     }
     public void increaseDtx(){
-        dtx+=0.01;
+        dtx+=0.03;
     }
     public void increaseDty(){
-        dty+=0.01;
+        dty+=0.03;
     }
     public void increaseDtz(){
-        dtz+=0.01;
+        dtz+=0.03;
     }
 
     public void decreaseDtx(){
         if (dtx<=-0.9) return;
-        dtx-=0.01;
+        dtx-=0.03;
     }
     public void decreaseDty(){
         if (dty<=-0.9) return;
-        dty-=0.01;
+        dty-=0.03;
     }
     public void decreaseDtz(){
         if (dty<=-0.9) return;
-        dtz-=0.01;
+        dtz-=0.03;
     }
     private static float[] translate(double dx, double dy, double dz) {
         return new float[]{
@@ -608,7 +631,7 @@ class ControlPanel extends JPanel {
         add(new JPanel() {{
 
             add(new JLabel("x"));
-            add(new JSlider(-100, 100,0) {{
+            add(new JSlider(-100, 100,100) {{
                 this.addChangeListener(e -> {
                     float value = this.getValue();
                     canvas.invoke(false, ee -> {
@@ -661,7 +684,7 @@ class ControlPanel extends JPanel {
             }});
 
             add(new JLabel("y"));
-            add(new JSlider(-100, 100,0) {{
+            add(new JSlider(-100, 100,100) {{
                 this.addChangeListener(e -> {
                     float value = this.getValue();
                     canvas.invoke(false, ee -> {
