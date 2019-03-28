@@ -9,6 +9,9 @@ public class LinAl {
 
         return new double[]{oa[1]*ob[2]-oa[2]*ob[1], -(oa[0]*ob[2]-oa[2]*ob[0]), oa[0]*ob[1]-oa[1]*ob[0]};
     }
+    public static double[] vecMulNormal(double [] x1, double x2[]){
+        return vecMul(new double[]{0,0,0},x1,x2);
+    }
     public static float[] matrixMul(float [] m1, float[] m2){
         float c [] = new float[16];
         for (int i = 0; i<4; i++) {
