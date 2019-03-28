@@ -29,13 +29,64 @@ public class BasicFrame implements GLEventListener {
     private TorHead torFull;
     private final Axis axis = new Axis();
     private Shader shader = null;
+    private float ox=1,oy=0, oz=0, oux=0, ouy=1,ouz=0;
+
+    public void setOx(float ox) {
+        this.ox = ox;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    public void setOy(float oy) {
+        this.oy = oy;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    public void setOz(float oz) {
+        this.oz = oz;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    public void setOux(float oux) {
+        this.oux = oux;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    public void setOuy(float ouy) {
+        this.ouy = ouy;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    public void setOuz(float ouz) {
+        this.ouz = ouz;
+        changeObserverMatrix(new double[]{ox,oy,oz}, new double[]{oux,ouy, ouz});
+    }
+
+    // Первый-куда, второй - координата верха
     private final float[] matrix = {
             1f, 0, 0, 0,
             0, 1f, 0, 0,
             0, 0, 1f, 0,
             0, 0, 0, 1f
     };
-
+    public void changeObserverMatrix(double[] where, double [] up){
+        for (int i = 0; i < where.length; i++) {
+            matrix[i*4] = (float) where[i];
+        }
+        matrix[12]=0;
+        for (int i = 0; i < up.length; i++) {
+            matrix[i*4+1] = (float) up[i];
+        }
+        matrix[13]=0;
+        double[] vecMul = LinAl.vecMulNormal(where,up);
+        for (int i = 0; i < vecMul.length; i++) {
+            matrix[i*4+2] = (float)vecMul[i];
+        }
+        matrix[14]=0;
+        for (int i = 0; i < 3; i++) {
+            matrix[i*4+3]=0;
+        }
+        matrix[15]=1;
+    }
     public void setNetShow(boolean isLine) {
         if (isLine) this.isShowNet = GL2GL3.GL_LINE;
         else this.isShowNet = GL2GL3.GL_FILL;
@@ -552,6 +603,88 @@ class ControlPanel extends JPanel {
             }});
         }});
 
+        add(new JLabel("Наблюдатель смотрит:"){{ }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("x"));
+            add(new JSlider(-100, 100,0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setOx(value / 100);
+                        return false;
+                    });
+                });
+                setValue(100);
+            }});
+
+            add(new JLabel("y"));
+            add(new JSlider(-100, 100,0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setOy(value / 100);
+                        return false;
+                    });
+                });
+                setValue(0);
+            }});
+
+            add(new JLabel("z"));
+            add(new JSlider(-100, 100,0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setOz(value / 100);
+                        return false;
+                    });
+                });
+                setValue(0);
+            }});
+        }});
+
+        add(new JLabel("Вверх наблюдателя:"){{ }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("x"));
+            add(new JSlider(-100, 100,0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setOux(value / 100);
+                        return false;
+                    });
+                });
+                setValue(0);
+            }});
+
+            add(new JLabel("y"));
+            add(new JSlider(-100, 100,0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setOuy(value / 100);
+                        return false;
+                    });
+                });
+                setValue(100);
+            }});
+
+        add(new JLabel("z"));
+        add(new JSlider(-100, 100,0) {{
+            this.addChangeListener(e -> {
+                float value = this.getValue();
+                canvas.invoke(false, ee -> {
+                    frame.setOuz(value / 100);
+                    return false;
+                });
+            });
+            setValue(0);
+        }});
+
+    }});
 
     }
 }
