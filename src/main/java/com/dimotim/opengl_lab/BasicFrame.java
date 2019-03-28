@@ -10,7 +10,10 @@ import lombok.Setter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 
 import static com.jogamp.opengl.GL.*;
@@ -130,7 +133,6 @@ public class BasicFrame implements GLEventListener {
     private double angleX = 0;
     private double angleY = 0;
     private double angleZ = 0;
-
     private final double  dangle = 2 * Math.PI / 60 / 5;
 
     public void increaseAngleX(){
@@ -166,6 +168,36 @@ public class BasicFrame implements GLEventListener {
                 0, 0, 0, 1f
         };
     }
+    float[] mouseMatrix = new float[]{
+            (float) 1, 0, 0, 0,
+            0, (float) 1, 0, 0,
+            0, 0,(float) 1, 0,
+            0, 0, 0, 1f
+    };
+    float[] mouseMatrixSaved = new float[]{
+            (float) 1, 0, 0, 0,
+            0, (float) 1, 0, 0,
+            0, 0,(float) 1, 0,
+            0, 0, 0, 1f
+    };
+    private   float [] getMouseMatrixToMul(float angleMatrix,float x, float y){
+       float []m= new float[]{
+               (float) (Math.cos(angleMatrix)+(1-Math.cos(angleMatrix))*x*x),(float) (1-Math.cos(angleMatrix))*x*y,(float) (y*Math.sin(angleMatrix)), 0,
+               (float) (1-Math.cos(angleMatrix))*y*x,(float) (Math.cos(angleMatrix)+(1-Math.cos(angleMatrix))*y*y),(float)-Math.sin(angleMatrix)*x,0,
+                -(float)Math.sin(angleMatrix)*y,(float) Math.sin(angleMatrix)*x,(float) Math.cos(angleMatrix),0,
+                0,0,0,1
+        };
+        return m;
+    }
+    public void changeMouseMatrix(float angleMatrix,float x, float y){
+        mouseMatrix=LinAl.matrixMul(mouseMatrixSaved,getMouseMatrixToMul(angleMatrix,x,y));
+    }
+    public void setMatrixAfterDrop(){
+        for (int i = 0; i < mouseMatrix.length; i++) {
+           mouseMatrixSaved[i]=mouseMatrix[i];
+        }
+    }
+
 
     public void display(GLAutoDrawable drawable) {
         init(drawable);
@@ -187,7 +219,8 @@ public class BasicFrame implements GLEventListener {
 
         gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, matrix, 0);
         gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false,
-                LinAl.matrixMul(scaleFull(scaleX,scaleY,scaleZ),LinAl.matrixMul(LinAl.matrixMul(getXAnimMatrix(),getYAnimMatrix()),getZAnimMatrix())), 0);
+                LinAl.matrixMul(LinAl.matrixMul(scaleFull(scaleX,scaleY,scaleZ),LinAl.matrixMul(LinAl.matrixMul(getXAnimMatrix(),getYAnimMatrix()),getZAnimMatrix())),
+                        mouseMatrix), 0);
         gl.glUniform1f(shader.intensivnost_blue_Id, blue);
         gl.glUniform1f(shader.intensivnost_red_Id, red);
         gl.glUniform1f(shader.intensivnost_green_Id, green);
@@ -261,10 +294,52 @@ public class BasicFrame implements GLEventListener {
 }
 
 class ControlPanel extends JPanel {
-    ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(2, 1));
+    private float [] getXYNormalised(float x, float y){
+        float norma = (float) Math.sqrt(x*x+y*y);
+        x=x/norma;
+        y=y/norma;
 
+        float t=x;
+        x=y;
+        y=t;
+        return new float[]{x,y};
+    }
+    ControlPanel(BasicFrame frame, GLCanvas canvas) {
         setLayout(new GridLayout(15, 1));
+
+        MouseAdapter adapter=new MouseAdapter() {
+            private int xStart;
+            private int yStart;
+            @Override
+            public void mousePressed(MouseEvent e){
+                System.out.println("p");
+                xStart=e.getX();
+                yStart=e.getY();
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                float xD = e.getX()-xStart;
+                float yD = e.getY()-yStart;
+                float vectorSize = (float) Math.sqrt(xD*xD+yD*yD);
+                float[] xy  = getXYNormalised(xD,yD);
+
+                canvas.invoke(false, ee -> {
+                    frame.changeMouseMatrix((float) Math.PI*vectorSize/300
+                            ,xy[0],xy[1]);
+                    return false;
+                });
+            }
+            @Override
+            public void mouseReleased(MouseEvent e){
+                canvas.invoke(false, ee -> {
+                    frame.setMatrixAfterDrop();
+                    return false;
+                });
+            }
+        };
+
+        canvas.addMouseListener(adapter);
+        canvas.addMouseMotionListener(adapter);
 
         add(new Checkbox("Net") {{
             addItemListener(e -> {
@@ -342,7 +417,7 @@ class ControlPanel extends JPanel {
         }});
         add(new JPanel() {{
             add(new JButton("←"){{
-                 this.addChangeListener(e->{
+                 this.addActionListener(e->{
                      canvas.invoke(false, ee -> {
                          frame.decreaseDtx();
                          return false;
@@ -350,7 +425,7 @@ class ControlPanel extends JPanel {
                  });
             }});
             add(new JButton("→"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseDtx();
                         return false;
@@ -359,7 +434,7 @@ class ControlPanel extends JPanel {
             }});
             add (new JLabel("      "));
             add(new JButton("↓"){{
-                this.addChangeListener(e->{
+                   this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.decreaseDty();
                         return false;
@@ -367,7 +442,7 @@ class ControlPanel extends JPanel {
                 });
             }});
             add(new JButton("↑"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseDty();
                         return false;
@@ -377,7 +452,7 @@ class ControlPanel extends JPanel {
 
             add (new JLabel("      "));
             add(new JButton("\u2BBF"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.decreaseDtz();
                         return false;
@@ -385,7 +460,7 @@ class ControlPanel extends JPanel {
                 });
             }});
             add(new JButton("⬝"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseDtz();
                         return false;
@@ -396,7 +471,7 @@ class ControlPanel extends JPanel {
 
         add(new JPanel() {{
             add(new JButton("Rotate X"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseAngleX();
                         return false;
@@ -405,7 +480,7 @@ class ControlPanel extends JPanel {
             }});
             add (new JLabel("      "));
             add(new JButton("Rotate Y"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseAngleY();
                         return false;
@@ -414,7 +489,7 @@ class ControlPanel extends JPanel {
             }});
             add (new JLabel("      "));
             add(new JButton("Rotate Z"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseAngleZ();
                         return false;
@@ -426,7 +501,7 @@ class ControlPanel extends JPanel {
 
         add(new JPanel() {{
             add(new JButton("x+"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseScaleX();
                         return false;
@@ -434,7 +509,7 @@ class ControlPanel extends JPanel {
                 });
             }});
             add(new JButton("x-"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.decreaseScaleX();
                         return false;
@@ -443,7 +518,7 @@ class ControlPanel extends JPanel {
             }});
             add (new JLabel("      "));
             add(new JButton("y+"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseScaleY();
                         return false;
@@ -451,7 +526,7 @@ class ControlPanel extends JPanel {
                 });
             }});
             add(new JButton("y-"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.decreaseScaleY();
                         return false;
@@ -460,7 +535,7 @@ class ControlPanel extends JPanel {
             }});
             add (new JLabel("      "));
             add(new JButton("z+"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.increaseScaleZ();
                         return false;
@@ -468,7 +543,7 @@ class ControlPanel extends JPanel {
                 });
             }});
             add(new JButton("z-"){{
-                this.addChangeListener(e->{
+                this.addActionListener(e->{
                     canvas.invoke(false, ee -> {
                         frame.decreaseScaleZ();
                         return false;
