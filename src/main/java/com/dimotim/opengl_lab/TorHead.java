@@ -65,6 +65,32 @@ public class TorHead{
         }
         return lists;
     }
+
+    private ArrayList<ArrayList<double[]>> genTorNormals(final  int np, final int nt){
+        final double dp=(pFinish-pStart)/np;
+        final double dt=(tFinish-tStart)/nt;
+        ArrayList<ArrayList<double[]>> listGrans=new ArrayList<>();
+        for (int i = 0; i < np; i++) {
+            for (int j = 0; j < nt; j++) {
+                ArrayList<double[]> gran=new ArrayList<>();
+                gran.add(genNormal(pStart+dp*i,tStart+dt*j));
+                gran.add(genNormal(pStart+dp*i,tStart+dt*(j+1)));
+                gran.add(genNormal(pStart+dp*(i+1),tStart+dt*(j+1)));
+                gran.add(genNormal(pStart+dp*(i+1),tStart+dt*j));
+                listGrans.add(gran);
+            }
+        }
+        return listGrans;
+    }
+
+    private double[] genNormal(double p, double t){
+        return new double[]{
+                Math.cos(t)*(-1)*Math.cos(p),
+                Math.sin(t)*(-1)*Math.cos(p),
+                Math.sin(p)
+        };
+    }
+
     public TorHead(double pStart, double pFinish, double tStart, double tFinish, int melkost){
         this.pStart=pStart;
         this.pFinish=pFinish;
@@ -73,15 +99,19 @@ public class TorHead{
         this.nt = melkost;
         this.np = melkost;
         List<ArrayList<double[]>> fig=genTor(np,nt);
+        List<ArrayList<double[]>> normals=genTorNormals(np,nt);
         List<Integer> figIdx=genTorIdx(np,nt);
 
         vertexData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
         normalData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for(ArrayList<double[]> gran:fig){
-            double[] n=LinAl.vecMul(gran.get(0),gran.get(1),gran.get(2));
             for(double[] pt:gran){
                 vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
-                normalData.put((float) n[0]).put((float) n[1]).put((float) n[2]);
+            }
+        }
+        for(ArrayList<double[]> gran:normals){
+            for(double[] pt:gran){
+                normalData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
             }
         }
         vertexData.position(0);
