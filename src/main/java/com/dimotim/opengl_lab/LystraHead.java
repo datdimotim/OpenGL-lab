@@ -25,6 +25,8 @@ public class LystraHead{
     private ShortBuffer indexData;
     private FloatBuffer vertexData;
     private FloatBuffer normalData;
+    private FloatBuffer materialData;
+
     //private FloatBuffer colorData;
     //private FloatBuffer textureData;
     private static double[] genLystraUpPt(double t){
@@ -63,7 +65,7 @@ public class LystraHead{
     private static List<Integer> genTorIdx(final int nt){
         return Stream.iterate(0, i->i+1).takeWhile(i->i<nt*4).collect(Collectors.toList());
     }
-    LystraHead( int melkost){
+    LystraHead( int melkost,  float rm, float gm, float bm){
         this.nt = melkost;
         List<ArrayList<double[]>> fig=genLystra(nt);
         List<Integer> figIdx=genTorIdx(nt);
@@ -75,6 +77,12 @@ public class LystraHead{
             for(double[] pt:gran){
                 vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
                 normalData.put((float)n[0]).put((float)n[1]).put((float)n[2]);
+            }
+        }
+        materialData = ByteBuffer.allocateDirect(4*3*4*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        for(ArrayList<double[]> gran:fig){
+            for(double[] ignored :gran){
+                materialData.put(rm).put(gm).put(bm);
             }
         }
         vertexData.position(0);
@@ -103,6 +111,7 @@ public class LystraHead{
     public void draw( GL2 gl, Shader shader){
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
         gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
+        gl.glVertexAttribPointer(shader.colorArrayId,3,GL_FLOAT,false,0,materialData.rewind());
 
         gl.glDrawElements(GL_QUADS, 4*nt, GL_UNSIGNED_SHORT, indexData.rewind());
     }

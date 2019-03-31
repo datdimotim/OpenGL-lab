@@ -21,7 +21,6 @@ public class TorHead{
     private static final double scale=3;
     private static final double R=0.1*scale;
     private static final double r=0.05*scale;
-
     private final double pStart;
     private final double pFinish;
     private final double tStart;
@@ -29,8 +28,8 @@ public class TorHead{
 
     private FloatBuffer vertexData;
     private FloatBuffer normalData;
-    private ShortBuffer indexData;
-
+    private  ShortBuffer indexData;
+    private FloatBuffer materialData;
     private static List<Integer> genTorIdx(final int np,final int nt){
         return Stream.iterate(0, i->i+1).takeWhile(i->i<np*nt*4).collect(Collectors.toList());
     }
@@ -91,7 +90,7 @@ public class TorHead{
         };
     }
 
-    public TorHead(double pStart, double pFinish, double tStart, double tFinish, int melkost){
+    public TorHead(double pStart, double pFinish, double tStart, double tFinish, int melkost, float rm, float gm, float bm){
         this.pStart=pStart;
         this.pFinish=pFinish;
         this.tStart=tStart;
@@ -104,9 +103,16 @@ public class TorHead{
 
         vertexData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
         normalData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        materialData = ByteBuffer.allocateDirect(4*3*4*np*nt).order(ByteOrder.nativeOrder()).asFloatBuffer();
+
         for(ArrayList<double[]> gran:fig){
             for(double[] pt:gran){
                 vertexData.put((float) pt[0]).put((float) pt[1]).put((float)pt[2]);
+            }
+        }
+        for(ArrayList<double[]> gran:fig){
+            for(double[] ignored :gran){
+                materialData.put(rm).put(gm).put(bm);
             }
         }
         for(ArrayList<double[]> gran:normals){
@@ -116,6 +122,7 @@ public class TorHead{
         }
         vertexData.position(0);
         normalData.position(0);
+        materialData.position(0);
 
         indexData = ByteBuffer.allocateDirect(2*4*np*nt).order(ByteOrder.nativeOrder()).asShortBuffer();
         for(int i:figIdx)indexData.put((short) i);
@@ -125,6 +132,7 @@ public class TorHead{
 
 
         gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
+        gl.glVertexAttribPointer(shader.colorArrayId,3,GL_FLOAT,false,0,materialData.rewind());
         gl.glVertexAttribPointer(shader.normalId,3,GL_FLOAT,false,0,normalData.rewind());
         gl.glDrawElements(GL_QUADS, 4*np*nt, GL_UNSIGNED_SHORT, indexData.rewind());
     }

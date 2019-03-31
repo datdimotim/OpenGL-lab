@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
+import java.util.Arrays;
 
 import static com.jogamp.opengl.GL.*;
 
@@ -33,15 +34,54 @@ public class BasicFrame implements GLEventListener {
     private float ox = 1, oy = 0, oz = 0, oux = 0, ouy = 1, ouz = 0;
     @Setter
     private float r = 0;
-
+    @Setter
+    private float p =0;
+    @Setter
+    private float q=0;
     public float[] oneProjection() {
         return new float[]{
-                1f, 0, 0, 0,
-                0, 1f, 0, 0,
+                1f, 0, 0, q,
+                0, 1f, 0, p,
                 0, 0, 1, r,
                 0, 0, 0, 1
         };
     }
+    private float rLustra=0;
+    private float g_Lustra=0;
+    private float b_Lustra=0;
+
+    private float rTor=0;
+    private float g_Tor=0;
+
+    public void setB_Tor(float b_Tor) {
+        this.b_Tor = b_Tor;
+    }
+
+    public void setTextureId(int textureId) {
+        this.textureId = textureId;
+    }
+
+    public void setrLustra(float rLustra) {
+        this.rLustra = rLustra;
+    }
+
+    public void setG_Lustra(float g_Lustra) {
+        this.g_Lustra = g_Lustra;
+    }
+
+    public void setB_Lustra(float b_Lustra) {
+        this.b_Lustra = b_Lustra;
+    }
+
+    public void setrTor(float rTor) {
+        this.rTor = rTor;
+    }
+
+    public void setG_Tor(float g_Tor) {
+        this.g_Tor = g_Tor;
+    }
+
+    private float b_Tor=0;
 
     public void setOx(float ox) {
         this.ox = ox;
@@ -80,14 +120,23 @@ public class BasicFrame implements GLEventListener {
             0, 0, 1f, 0,
             0, 0, 0, 1f
     };
-
+    private double norma(double [] v){
+        return Math.sqrt(Math.pow(v[0],2)+Math.pow(v[1],2)+Math.pow(v[2],2));
+    }
     public void changeObserverMatrix(double[] where, double[] up) {
+
+        double[] tmp = LinAl.vecMulNormal(where, up);
+        double [] upS = LinAl.vecMulNormal(where,tmp);
+        for (int i = 0; i < upS.length; i++) {
+            up[i] = upS[i];
+        }
         float normWhere = (float) Math.sqrt(Math.pow(where[0], 2) + Math.pow(where[1], 2) + Math.pow(where[2], 2));
         float normUp = (float) Math.sqrt(Math.pow(up[0], 2) + Math.pow(up[1], 2) + Math.pow(up[2], 2));
         for (int i = 0; i < up.length; i++) {
             up[i] = up[i] / normUp;
             where[i] = where[i] / normWhere;
         }
+
         for (int i = 0; i < where.length; i++) {
             matrix[i * 4] = (float) where[i];
         }
@@ -105,6 +154,28 @@ public class BasicFrame implements GLEventListener {
             matrix[i * 4 + 3] = 0;
         }
         matrix[15] = 1;
+   /*    System.out.println("------");
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                System.out.print(matrix[4*i+j]+" ");;
+            }
+            System.out.println();
+        }
+        System.out.println("-------");
+
+
+        float []mt = LinAl.transpose(matrix);
+        System.out.println("====");
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                System.out.print(mt[4*i+j]+" ");;
+            }
+            System.out.println();
+        }
+        System.out.println("=======");
+*/
+        System.out.println(Arrays.toString(LinAl.matrixMul(matrix, LinAl.transpose(matrix))));
+
 /*
         for (int i = 0; i < where.length; i++) {
             matrix[i] = (float)where[i];
@@ -311,9 +382,9 @@ public class BasicFrame implements GLEventListener {
 
     public void display(GLAutoDrawable drawable) {
         init(drawable);
-        lystraHead = new LystraHead(melkost);
-        torHead = new TorHead(-Math.PI / 2, 2 * Math.PI / 3, 0, 2 * Math.PI, melkost);
-        torFull = new TorHead(0, 2 * Math.PI, 0, 2 * Math.PI, melkost);
+        lystraHead = new LystraHead(melkost, rLustra, g_Lustra, b_Lustra);
+        torHead = new TorHead(-Math.PI / 2, 2 * Math.PI / 3, 0, 2 * Math.PI, melkost,rTor, g_Tor, b_Tor);
+        torFull = new TorHead(0, 2 * Math.PI, 0, 2 * Math.PI, melkost, rTor, g_Tor, b_Tor);
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
         final GL2 gl = drawable.getGL().getGL2();
@@ -417,7 +488,7 @@ class ControlPanel extends JPanel {
     }
 
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(15, 1));
+        setLayout(new GridLayout(30, 1));
 
         MouseAdapter adapter = new MouseAdapter() {
             private int xStart;
@@ -751,8 +822,9 @@ class ControlPanel extends JPanel {
             }});
 
         }});
+        add(new JLabel("Проецирование"));
         add(new JPanel() {{
-                add(new JLabel("Одноточечное проецирование"));
+                add(new JLabel("r"));
                 add(new JSlider(-500, 500, 0) {{
                     this.addChangeListener(e -> {
                         float value = this.getValue();
@@ -761,9 +833,112 @@ class ControlPanel extends JPanel {
                             return false;
                         });
                     });
-                    setValue(0);
                 }});
-            }
-        });
+            add(new JLabel("p"));
+            add(new JSlider(-500, 500, 0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setP(value/100);
+                        return false;
+                    });
+                });
+            }});
+            add(new JLabel("q"));
+            add(new JSlider(-500, 500, 0) {{
+                this.addChangeListener(e -> {
+                    float value = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setQ(value/100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JLabel("Цвет абажура"));
+        add(new JPanel() {{
+            add(new JLabel("Red"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float red = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setrLustra(red / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("Green"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float green = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setG_Lustra(green / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("Blue"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float blue = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setB_Lustra(blue / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JLabel("Цвет подставки"));
+        add(new JPanel() {{
+            add(new JLabel("Red"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float red = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setrTor(red / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("Green"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float green = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setG_Tor(green / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
+        add(new JPanel() {{
+
+            add(new JLabel("Blue"));
+            add(new JSlider(0, 100, 0) {{
+                this.addChangeListener(e -> {
+                    float blue = this.getValue();
+                    canvas.invoke(false, ee -> {
+                        frame.setB_Tor(blue / 100);
+                        return false;
+                    });
+                });
+            }});
+        }});
+
     }
 }
