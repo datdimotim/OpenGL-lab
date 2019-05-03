@@ -488,7 +488,7 @@ class ControlPanel extends JPanel {
     }
 
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(30, 1));
+        setLayout(new GridLayout(25, 1));
 
         MouseAdapter adapter = new MouseAdapter() {
             private int xStart;
