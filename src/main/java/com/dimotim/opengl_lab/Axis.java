@@ -6,9 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.jogamp.opengl.GL.*;
 
@@ -18,7 +17,7 @@ public class Axis{
 
 
     private static List<Integer> genIdx(){
-        return Stream.iterate(0, i->i+1).takeWhile(i->i<6).collect(Collectors.toList());
+        return Arrays.asList(0,1,2,3,4,5);
     }
     public Axis(){
         vertexData = ByteBuffer.allocateDirect(4*3*6).order(ByteOrder.nativeOrder()).asFloatBuffer();

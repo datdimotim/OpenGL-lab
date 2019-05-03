@@ -1,8 +1,33 @@
 package com.dimotim.opengl_lab;
+import static java.lang.Math.*;
 
-import java.util.Arrays;
 
 public class LinAl {
+
+    public static float[] translate(double dx, double dy, double dz) {
+        return new float[]{
+                1f, 0, 0, 0,
+                0, 1f, 0, 0,
+                0, 0, 1f, 0,
+                (float) dx, (float) dy, (float) dz, 1f
+        };
+    }
+
+    public static float[] rotate(double angle, double x, double y, double z){
+        double[] m= new double[]{
+                cos(angle)+(1-cos(angle))*x*x, (1-cos(angle))*x*y - sin(angle)*z, (1-cos(angle))*x*z+sin(angle)*y,0,
+                (1-cos(angle))*y*x+sin(angle)*z, cos(angle)+(1-cos(angle))*y*y, (1-cos(angle))*y*z-sin(angle)*x,0,
+                (1-cos(angle))*z*x-sin(angle)*y, (1-cos(angle))*z*y+sin(angle)*x, cos(angle)+(1-cos(angle))*z*z,0,
+                0,0,0,1
+        };
+
+        float[] mf=new float[16];
+        for (int i = 0; i < 16; i++) {
+            mf[i]= (float) m[i];
+        }
+        return mf;
+    }
+
     public static double[] vecMul(double[] o,double[] a, double[] b){
         double[] oa={a[0]-o[0],a[1]-o[1],a[2]-o[2]};
         double[] ob={b[0]-o[0],b[1]-o[1],b[2]-o[2]};

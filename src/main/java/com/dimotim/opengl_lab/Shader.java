@@ -4,7 +4,15 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 import lombok.Data;
+
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Data
 public class Shader{
@@ -76,5 +84,16 @@ public class Shader{
         gl.glEnableVertexAttribArray(normalId);
 
         System.out.println(this);
+    }
+
+    public static Texture loadTexture(String file) {
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(ImageIO.read(BasicFrame.class.getResourceAsStream(file)), "png", os);
+            InputStream fis = new ByteArrayInputStream(os.toByteArray());
+            return TextureIO.newTexture(fis, true, TextureIO.PNG);
+        } catch (IOException e) {
+            throw new RuntimeException("error load texture: file=" + file);
+        }
     }
 }
