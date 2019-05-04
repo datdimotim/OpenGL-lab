@@ -1,9 +1,8 @@
 package com.dimotim.opengl_lab;
 
 
-import example.GLObject;
-
 public class Cylinder extends GLObject {
+    private static final String texturePath = "bump24.png";
     private static final double R=0.07;
     private static final double L=0.5;
     private static final int count=30;
@@ -74,7 +73,7 @@ public class Cylinder extends GLObject {
 
     @Override
     protected String getTexturePath() {
-        return "bump24.png";
+        return texturePath;
     }
 }
 

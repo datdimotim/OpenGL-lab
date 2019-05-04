@@ -4,7 +4,6 @@ package com.dimotim.opengl_lab;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import example.ShadeProgram;
 
 
 import javax.swing.*;

@@ -1,9 +1,9 @@
-package example;
+package com.dimotim.opengl_lab;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 
-import static example.ShadeProgram.loadTexture;
+import static com.dimotim.opengl_lab.ShadeProgram.loadTexture;
 import static com.jogamp.opengl.GL3.*;
 
 

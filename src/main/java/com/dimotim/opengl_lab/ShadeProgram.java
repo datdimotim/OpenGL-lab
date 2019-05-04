@@ -1,4 +1,4 @@
-package example;
+package com.dimotim.opengl_lab;
 
 import com.dimotim.opengl_lab.BasicFrame;
 import com.jogamp.opengl.GL3;

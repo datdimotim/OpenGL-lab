@@ -2,7 +2,6 @@ package com.dimotim.opengl_lab;
 
 
 import com.jogamp.opengl.GL3;
-import example.ShadeProgram;
 
 
 public class CompositeModel {
