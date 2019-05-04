@@ -13,6 +13,15 @@ public class LinAl {
         };
     }
 
+    public static float[] scale(float r) {
+        return new float[]{
+                r, 0, 0, 0,
+                0, r, 0, 0,
+                0, 0, r, 0,
+                0, 0, 0, 1f
+        };
+    }
+
     public static float[] rotate(double angle, double x, double y, double z){
         double[] m= new double[]{
                 cos(angle)+(1-cos(angle))*x*x, (1-cos(angle))*x*y - sin(angle)*z, (1-cos(angle))*x*z+sin(angle)*y,0,

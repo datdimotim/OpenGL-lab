@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 public class ControlPanel extends JPanel {
     private float[] getXYNormalised(float x, float y) {
@@ -52,10 +53,18 @@ public class ControlPanel extends JPanel {
                     return false;
                 });
             }
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                canvas.invoke(false, ee -> {
+                    frame.scale(e.getWheelRotation());
+                    return false;
+                });
+            }
         };
 
         canvas.addMouseListener(adapter);
         canvas.addMouseMotionListener(adapter);
-
+        canvas.addMouseWheelListener(adapter);
     }
 }

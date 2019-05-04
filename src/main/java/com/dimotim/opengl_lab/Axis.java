@@ -47,4 +47,9 @@ public class Axis extends GLObject{
     protected int getPrimitiveType() {
         return GL_LINES;
     }
+
+    @Override
+    public float getImgNormalRatio() {
+        return 1;
+    }
 }

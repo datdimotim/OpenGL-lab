@@ -2,7 +2,6 @@ package com.dimotim.opengl_lab;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
@@ -35,6 +34,7 @@ public class ShadeProgram{
     public final int projMatrixLoc;
 	public final int viewMatrixLoc;
 	public final int textureUniformLoc;
+	public final int imgNormalRatioLoc;
     public ShadeProgram(GL4 gl){
         int v = this.newShaderFromCurrentClass(gl, "/vertex.shader.glsl", ShaderType.VertexShader);
         int f = this.newShaderFromCurrentClass(gl, "/fragment.shader.glsl", ShaderType.FragmentShader);
@@ -54,7 +54,7 @@ public class ShadeProgram{
         this.viewMatrixLoc=gl.glGetUniformLocation(p,"viewMatrix");
         this.projMatrixLoc=gl.glGetUniformLocation(p,"projMatrix");
         this.textureUniformLoc=gl.glGetUniformLocation(p,"u_texture");
-
+        this.imgNormalRatioLoc=gl.glGetUniformLocation(p,"imgNormalRatio");
         System.out.println(this);
     }
 

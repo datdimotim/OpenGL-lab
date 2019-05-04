@@ -103,6 +103,11 @@ public class Sphere extends GLObject {
     }
 
     @Override
+    public float getImgNormalRatio() {
+        return 0;
+    }
+
+    @Override
     protected float[] getColorArray() {
         return new float[0];
     }

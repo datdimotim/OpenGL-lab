@@ -19,10 +19,10 @@ public class BasicFrame implements GLEventListener {
     private ShadeProgram shader = null;
 
     // Первый-куда, второй - координата верха
-    private final float[] projectionMatrix = {
-            1.5f, 0, 0, 0,
-            0, 1.5f, 0, 0,
-            0, 0, 1.5f, 0,
+    private float[] projectionMatrix = {
+            1.0f, 0, 0, 0,
+            0, 1.0f, 0, 0,
+            0, 0, 1.0f, 0,
             0, 0, 0, 1f
     };
 
@@ -48,6 +48,10 @@ public class BasicFrame implements GLEventListener {
 
     public void commitViewMatrixByMouse(){
         prevViewMatrix=viewMatrix;
+    }
+
+    public void scale(int dir){
+        projectionMatrix=LinAl.matrixMul(projectionMatrix,LinAl.scale((float) ((100.0+dir)/100)));
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -76,13 +80,13 @@ public class BasicFrame implements GLEventListener {
 
 
         //gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, projectionMatrix, 0);
-        gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, viewMatrix, 0);
+        //gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, viewMatrix, 0);
         //gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
         //axis.draw(gl, shader);
         //sphere.draw(gl,shader, projectionMatrix);
 
 
-        model.draw(gl,shader,viewMatrix);
+        model.draw(gl,shader,LinAl.matrixMul(projectionMatrix,viewMatrix));
         //axis.draw(gl,shader,viewMatrix);
 
         checkErr(gl);

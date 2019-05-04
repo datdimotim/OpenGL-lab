@@ -93,5 +93,10 @@ public class Cylinder extends GLObject {
     protected int getPrimitiveType() {
         return GL_TRIANGLE_STRIP;
     }
+
+    @Override
+    public float getImgNormalRatio() {
+        return 1;
+    }
 }
 

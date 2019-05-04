@@ -19,6 +19,7 @@ public abstract class GLObject {
     protected abstract float[] getNormalArray();
     protected abstract String getTexturePath();
     protected abstract int getPrimitiveType();
+    public abstract float getImgNormalRatio();
 
     private int generateVAOId(GL4 gl) {
         int[] idArray = new int[1];
@@ -70,6 +71,8 @@ public abstract class GLObject {
     public void draw(GL4 gl, ShadeProgram program, float[] modelMatrix){
         if(!inited)init(gl, program);
         gl.glUniformMatrix4fv(program.viewMatrixLoc, 1, false, modelMatrix, 0);
+
+        gl.glUniform1f(program.imgNormalRatioLoc,getImgNormalRatio());
 
         if(textureName!=-1) {
             gl.glActiveTexture(GL_TEXTURE0);
