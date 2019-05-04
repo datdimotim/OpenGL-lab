@@ -1,10 +1,14 @@
 package com.dimotim.opengl_lab;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 import lombok.Data;
 
@@ -13,6 +17,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.nio.IntBuffer;
+
+import static com.jogamp.opengl.GL.GL_TEXTURE_2D;
+import static com.jogamp.opengl.GL2ES2.GL_RED;
+import static com.jogamp.opengl.GL2ES3.*;
+import static com.jogamp.opengl.GL2GL3.GL_TEXTURE_SWIZZLE_RGBA;
 
 @Data
 public class Shader{
@@ -86,12 +97,34 @@ public class Shader{
         System.out.println(this);
     }
 
-    public static Texture loadTexture(String file) {
+    public static void loadTexture(String file, GL3 gl) {
         try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(ImageIO.read(BasicFrame.class.getResourceAsStream(file)), "png", os);
-            InputStream fis = new ByteArrayInputStream(os.toByteArray());
-            return TextureIO.newTexture(fis, true, TextureIO.PNG);
+            URL texture=BasicFrame.class.getClassLoader().getResource(file);
+            TextureData data=TextureIO.newTextureData(gl.getGLProfile(),texture,false,TextureIO.PNG);
+            int level=0;
+            int[] a=new int[1];
+            gl.glGenTextures(1,a,0);
+            final int textureName=a[0];
+            System.out.println(textureName);
+            gl.glBindTexture(GL_TEXTURE_2D,textureName);
+            {
+                gl.glTexImage2D(GL_TEXTURE_2D,
+                        level,
+                        data.getInternalFormat(),
+                        data.getWidth(), data.getHeight(),
+                        data.getBorder(),
+                        data.getPixelFormat(), data.getPixelType(),
+                        data.getBuffer());
+
+                gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+                gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, level);
+
+                IntBuffer swizzle = GLBuffers.newDirectIntBuffer(new int[]{GL_RED, GL_GREEN, GL_BLUE, GL_ONE});
+                gl.glTexParameterIiv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
+
+            }
+            gl.glBindTexture(GL_TEXTURE_2D, textureName);
+
         } catch (IOException e) {
             throw new RuntimeException("error load texture: file=" + file);
         }

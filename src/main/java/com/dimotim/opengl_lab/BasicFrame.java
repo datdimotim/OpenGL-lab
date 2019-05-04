@@ -4,23 +4,21 @@ package com.dimotim.opengl_lab;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureIO;
+import example.ShadeProgram;
 
-import javax.imageio.ImageIO;
+
 import javax.swing.*;
-import java.io.*;
 
 import static com.jogamp.opengl.GL.*;
 
 
 public class BasicFrame implements GLEventListener {
-    public static final String texturePath = "/venera.png";
+    public static final String texturePath = "venera.png";
     private int textureId;
 
     private final Axis axis = new Axis();
     private final CompositeModel model=new CompositeModel();
-    private Shader shader = null;
+    private ShadeProgram shader = null;
 
     // Первый-куда, второй - координата верха
     private final float[] projectionMatrix = {
@@ -55,12 +53,11 @@ public class BasicFrame implements GLEventListener {
     }
 
     public void display(GLAutoDrawable drawable) {
-        init(drawable);
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
-        final GL2 gl = drawable.getGL().getGL2();
+        final GL3 gl = drawable.getGL().getGL3();
 
-        gl.glUseProgram(shader.shaderProgram.id());
+        gl.glUseProgram(shader.progId);
         gl.glClearColor(0, 0, 0, 0);
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
@@ -70,26 +67,28 @@ public class BasicFrame implements GLEventListener {
 
 
 
-        gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, projectionMatrix, 0);
-        gl.glUniformMatrix4fv(shader.viewMatrixId, 1, false, viewMatrix, 0);
-        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
-        axis.draw(gl, shader);
+        //gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, projectionMatrix, 0);
+        gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, viewMatrix, 0);
+        //gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
+        //axis.draw(gl, shader);
         //sphere.draw(gl,shader, projectionMatrix);
         model.draw(gl,shader,modelMatrix);
 
+        int error = gl.glGetError();
+        if (error != 0) {
+            System.err.println("ERROR on render : " + error);
+        }
     }
 
     public void dispose(GLAutoDrawable arg0) {
 
     }
 
-    private int c=0;
     public void init(GLAutoDrawable glad) {
-        if (c++ > 2) return;
         System.out.println("init");
-        GL2 gl = glad.getGL().getGL2();
+        GL3 gl = glad.getGL().getGL3();
         System.out.println("GL version:" + gl.glGetString(GL.GL_VERSION));
-        shader = new Shader(gl);
+        shader = new ShadeProgram(gl);
     }
 
 
@@ -99,7 +98,7 @@ public class BasicFrame implements GLEventListener {
 
 
     public static void main(String[] args) {
-        final GLProfile profile = GLProfile.get(GLProfile.GL2);
+        final GLProfile profile = GLProfile.get(GLProfile.GL3);
         GLCapabilities capabilities = new GLCapabilities(profile);
         final GLCanvas glcanvas = new GLCanvas(capabilities);
         BasicFrame frame = new BasicFrame();

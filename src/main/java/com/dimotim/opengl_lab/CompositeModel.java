@@ -1,6 +1,8 @@
 package com.dimotim.opengl_lab;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
+import example.ShadeProgram;
 
 
 public class CompositeModel {
@@ -8,8 +10,7 @@ public class CompositeModel {
     private final Sphere sphere=new Sphere();
     private final Cylinder cylinder=new Cylinder();
 
-    public void draw(GL2 gl, Shader shader, float[] modelMatrix){
-        gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
+    public void draw(GL3 gl, ShadeProgram shader, float[] modelMatrix){
 
         float[] mat;
 
@@ -31,7 +32,7 @@ public class CompositeModel {
         sphere.draw(gl, shader, mat);
 
 
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,0));
+        /*mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,0));
         cylinder.draw(gl,shader,mat);
         mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,0));
         cylinder.draw(gl,shader,mat);
@@ -61,6 +62,6 @@ public class CompositeModel {
         mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,0)),rotate);
         cylinder.draw(gl,shader,mat);
 
-
+        */
     }
 }

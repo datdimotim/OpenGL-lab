@@ -104,7 +104,7 @@ public class Cylinder {
 
     private void init(GL2 gl){
         gl.glActiveTexture(GL_TEXTURE0);
-        textureId = loadTexture(texturePath).getTextureObject();
+        //textureId = loadTexture(texturePath).getTextureObject();
         inited=true;
     }
 
