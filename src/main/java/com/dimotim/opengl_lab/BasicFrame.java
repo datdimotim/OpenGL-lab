@@ -13,7 +13,6 @@ import static com.jogamp.opengl.GL.*;
 
 
 public class BasicFrame implements GLEventListener {
-    public static final String texturePath = "venera.png";
     private int textureId;
 
     private final Axis axis = new Axis();
@@ -72,7 +71,7 @@ public class BasicFrame implements GLEventListener {
         //gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
         //axis.draw(gl, shader);
         //sphere.draw(gl,shader, projectionMatrix);
-        model.draw(gl,shader,modelMatrix);
+        model.draw(gl,shader,viewMatrix);
 
         int error = gl.glGetError();
         if (error != 0) {

@@ -3,6 +3,7 @@ package com.dimotim.opengl_lab;
 import example.GLObject;
 
 public class Sphere extends GLObject {
+    public static final String texturePath = "venera.png";
     private static final double R=0.1;
     private static final double am=Math.PI/2;
     private static final int betaCount=30;
@@ -83,7 +84,7 @@ public class Sphere extends GLObject {
 
     @Override
     protected String getTexturePath() {
-        return BasicFrame.texturePath;
+        return texturePath;
     }
 
     @Override

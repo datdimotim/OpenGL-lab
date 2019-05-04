@@ -44,7 +44,7 @@ public class Gl3Sample implements GLEventListener {
 
         @Override
         protected String getTexturePath() {
-            return BasicFrame.texturePath;
+            return "";
         }
 
 

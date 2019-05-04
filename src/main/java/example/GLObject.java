@@ -3,13 +3,14 @@ package example;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 
-import static com.dimotim.opengl_lab.Shader.loadTexture;
+import static example.ShadeProgram.loadTexture;
 import static com.jogamp.opengl.GL3.*;
 
 
 public abstract class GLObject {
     private int vao=0;
     private int countOfVertexes=0;
+    private int textureName=0;
     private boolean inited=false;
 
     protected abstract float[] getVertices();
@@ -55,16 +56,17 @@ public abstract class GLObject {
 
         gl.glActiveTexture(GL_TEXTURE0);
 
-        loadTexture(getTexturePath(),gl);
+        textureName=loadTexture(getTexturePath(),gl);
 
         inited=true;
     }
 
     public void draw(GL3 gl, ShadeProgram program, float[] modelMatrix){
         if(!inited)init(gl, program);
-        //gl.glUniformMatrix4fv(program.viewMatrixLoc, 1, false, modelMatrix, 0);
+        gl.glUniformMatrix4fv(program.viewMatrixLoc, 1, false, modelMatrix, 0);
 
         gl.glActiveTexture(GL_TEXTURE0);
+        gl.glBindTexture(GL_TEXTURE_2D,textureName);
         gl.glUniform1i(program.textureUniformLoc, 0);
 
         gl.glBindVertexArray(this.vao);

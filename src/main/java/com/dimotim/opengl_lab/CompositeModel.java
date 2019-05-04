@@ -1,6 +1,6 @@
 package com.dimotim.opengl_lab;
 
-import com.jogamp.opengl.GL2;
+
 import com.jogamp.opengl.GL3;
 import example.ShadeProgram;
 
@@ -14,54 +14,55 @@ public class CompositeModel {
 
         float[] mat;
 
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,-d));
+        mat=LinAl.matrixMul(LinAl.translate(-d,-d,-d),modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,d));
+        mat=LinAl.matrixMul(LinAl.translate(-d,-d,d), modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,d));
+        mat=LinAl.matrixMul(LinAl.translate(-d,d,d), modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,-d));
+        mat=LinAl.matrixMul(LinAl.translate(-d,d,-d), modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,-d));
+        mat=LinAl.matrixMul(LinAl.translate(d,-d,-d), modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,d));
+        mat=LinAl.matrixMul(LinAl.translate(d,-d,d), modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,d,d));
+        mat=LinAl.matrixMul(LinAl.translate(d,d,d),modelMatrix);
         sphere.draw(gl, shader, mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,d,-d));
+        mat=LinAl.matrixMul(LinAl.translate(d,d,-d),modelMatrix);
         sphere.draw(gl, shader, mat);
 
 
-        /*mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,0));
+        mat=LinAl.matrixMul(LinAl.translate(-d,-d,0),modelMatrix);
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,0));
+        mat=LinAl.matrixMul(LinAl.translate(-d,d,0),modelMatrix);
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,d,0));
+        mat=LinAl.matrixMul(LinAl.translate(d,d,0),modelMatrix);
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,0));
+        mat=LinAl.matrixMul(LinAl.translate(d,-d,0),modelMatrix);
         cylinder.draw(gl,shader,mat);
 
 
         float[] rotate=LinAl.rotate(Math.PI/2,1,0,0);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(-d,0,-d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(-d,0,d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(d,d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(d,0,d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(d,0,-d),modelMatrix));
         cylinder.draw(gl,shader,mat);
+
 
         rotate=LinAl.rotate(Math.PI/2,0,1,0);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(-d,-d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(0,-d,-d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(-d,d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(0,-d,d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(d,d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(0,d,d),modelMatrix));
         cylinder.draw(gl,shader,mat);
-        mat=LinAl.matrixMul(LinAl.matrixMul(modelMatrix,LinAl.translate(d,-d,0)),rotate);
+        mat=LinAl.matrixMul(rotate,LinAl.matrixMul(LinAl.translate(0,d,-d),modelMatrix));
         cylinder.draw(gl,shader,mat);
 
-        */
+
     }
 }

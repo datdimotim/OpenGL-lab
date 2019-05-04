@@ -34,8 +34,8 @@ public class Axis{
         indexData.position(0);
 
     }
-    public void draw( GL2 gl, Shader shader ){
-        gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
-        gl.glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, indexData.rewind());
-    }
+    //public void draw( GL2 gl, Shader shader ){
+    //    gl.glVertexAttribPointer(shader.vertexArrayId,3,GL_FLOAT,false,0,vertexData.rewind());
+    //    gl.glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, indexData.rewind());
+   // }
 }
