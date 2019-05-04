@@ -1,5 +1,6 @@
 package com.dimotim.opengl_lab;
 
+import static com.jogamp.opengl.GL.GL_TRIANGLES;
 import static com.jogamp.opengl.GL.GL_TRIANGLE_STRIP;
 
 public class Sphere extends GLObject {
@@ -13,8 +14,10 @@ public class Sphere extends GLObject {
         return new float[][]{
                 genPoint(na,nb),
                 genPoint(na,nb+1),
-                genPoint(na+1,nb),
-                genPoint(na+1,nb+1)
+                genPoint(na+1,nb+1),
+                genPoint(na+1,nb+1),
+                genPoint(na,nb),
+                genPoint(na+1,nb)
         };
     }
 
@@ -22,8 +25,10 @@ public class Sphere extends GLObject {
         return new float[][]{
                 genPointTexture(na,nb),
                 genPointTexture(na,nb+1),
-                genPointTexture(na+1,nb),
-                genPointTexture(na+1,nb+1)
+                genPointTexture(na+1,nb+1),
+                genPointTexture(na+1,nb+1),
+                genPointTexture(na,nb),
+                genPointTexture(na+1,nb)
         };
     }
 
@@ -50,7 +55,7 @@ public class Sphere extends GLObject {
 
     @Override
     protected float[] getVertices() {
-        float[] v=new float[3*4*betaCount*alphaCount];
+        float[] v=new float[3*6*betaCount*alphaCount];
         int i=0;
         for(int a=0;a<alphaCount;a++){
             for(int b=0;b<betaCount;b++){
@@ -67,7 +72,7 @@ public class Sphere extends GLObject {
 
     @Override
     protected float[] getTextureArray() {
-        float[] v=new float[2*4*betaCount*alphaCount];
+        float[] v=new float[2*6*betaCount*alphaCount];
         int i=0;
         for(int a=0;a<alphaCount;a++){
             for(int b=0;b<betaCount;b++){
@@ -89,7 +94,7 @@ public class Sphere extends GLObject {
 
     @Override
     protected int getPrimitiveType() {
-        return GL_TRIANGLE_STRIP;
+        return GL_TRIANGLES;
     }
 
     @Override

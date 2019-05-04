@@ -13,8 +13,10 @@ public class Cylinder extends GLObject {
         return new float[][]{
                 genPoint(rNum,0),
                 genPoint(rNum,1),
-                genPoint(rNum+1,0),
-                genPoint(rNum+1,1)
+                genPoint(rNum+1,1),
+                genPoint(rNum+1,1),
+                genPoint(rNum,0),
+                genPoint(rNum+1,0)
         };
     }
 
@@ -22,8 +24,10 @@ public class Cylinder extends GLObject {
         return new float[][]{
                 genPointTexture(rNum,0),
                 genPointTexture(rNum,1),
-                genPointTexture(rNum+1,0),
-                genPointTexture(rNum+1,1)
+                genPointTexture(rNum+1,1),
+                genPointTexture(rNum+1,1),
+                genPointTexture(rNum,0),
+                genPointTexture(rNum+1,0)
         };
     }
 
@@ -44,7 +48,7 @@ public class Cylinder extends GLObject {
 
     @Override
     protected float[] getVertices() {
-        float[] v=new float[3*4*count];
+        float[] v=new float[3*6*count];
         int i=0;
         for(int q=0;q<count;q++){
             float[][] g=genQuad(q);
@@ -62,7 +66,7 @@ public class Cylinder extends GLObject {
 
     @Override
     protected float[] getTextureArray() {
-        float[] v=new float[2*4*count];
+        float[] v=new float[2*6*count];
         int i=0;
         for(int q=0;q<count;q++){
             float[][] g=genTextureQuad(q);
