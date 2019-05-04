@@ -1,5 +1,7 @@
 package com.dimotim.opengl_lab;
 
+import static com.jogamp.opengl.GL.GL_TRIANGLE_STRIP;
+
 public class Sphere extends GLObject {
     private static final String texturePath = "venera.png";
     private static final double R=0.1;
@@ -83,6 +85,11 @@ public class Sphere extends GLObject {
     @Override
     protected String getTexturePath() {
         return texturePath;
+    }
+
+    @Override
+    protected int getPrimitiveType() {
+        return GL_TRIANGLE_STRIP;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.dimotim.opengl_lab;
 
 
+import static com.jogamp.opengl.GL.GL_TRIANGLE_STRIP;
+
 public class Cylinder extends GLObject {
     private static final String texturePath = "bump24.png";
     private static final double R=0.07;
@@ -74,6 +76,11 @@ public class Cylinder extends GLObject {
     @Override
     protected String getTexturePath() {
         return texturePath;
+    }
+
+    @Override
+    protected int getPrimitiveType() {
+        return GL_TRIANGLE_STRIP;
     }
 }
 

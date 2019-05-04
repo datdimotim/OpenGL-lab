@@ -71,6 +71,7 @@ public class BasicFrame implements GLEventListener {
         //axis.draw(gl, shader);
         //sphere.draw(gl,shader, projectionMatrix);
         model.draw(gl,shader,viewMatrix);
+        axis.draw(gl,shader,viewMatrix);
 
         int error = gl.glGetError();
         if (error != 0) {

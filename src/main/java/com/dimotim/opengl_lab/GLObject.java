@@ -10,13 +10,14 @@ import static com.jogamp.opengl.GL3.*;
 public abstract class GLObject {
     private int vao=0;
     private int countOfVertexes=0;
-    private int textureName=0;
+    private int textureName=-1;
     private boolean inited=false;
 
     protected abstract float[] getVertices();
     protected abstract float[] getColorArray(); // RGBA
     protected abstract float[] getTextureArray();
     protected abstract String getTexturePath();
+    protected abstract int getPrimitiveType();
 
     private int generateVAOId(GL3 gl) {
         int[] idArray = new int[1];
@@ -56,7 +57,9 @@ public abstract class GLObject {
 
         gl.glActiveTexture(GL_TEXTURE0);
 
-        textureName=loadTexture(getTexturePath(),gl);
+        if(getTexturePath()!=null) {
+            textureName = loadTexture(getTexturePath(), gl);
+        }else textureName=-1;
 
         inited=true;
     }
@@ -65,11 +68,13 @@ public abstract class GLObject {
         if(!inited)init(gl, program);
         gl.glUniformMatrix4fv(program.viewMatrixLoc, 1, false, modelMatrix, 0);
 
-        gl.glActiveTexture(GL_TEXTURE0);
-        gl.glBindTexture(GL_TEXTURE_2D,textureName);
-        gl.glUniform1i(program.textureUniformLoc, 0);
+        if(textureName!=-1) {
+            gl.glActiveTexture(GL_TEXTURE0);
+            gl.glBindTexture(GL_TEXTURE_2D, textureName);
+            gl.glUniform1i(program.textureUniformLoc, 0);
+        }
 
         gl.glBindVertexArray(this.vao);
-        gl.glDrawArrays(GL3.GL_TRIANGLE_STRIP, 0, countOfVertexes);
+        gl.glDrawArrays(getPrimitiveType(), 0, countOfVertexes);
     }
 }
