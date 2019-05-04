@@ -5,6 +5,7 @@ layout (triangle_strip, max_vertices=3) out;
 
 in vec3 Color[3];
 in vec2 v_Tex_Coord[3];
+in vec3 normal_v[3];
 
 
 out vec3 Color1;
@@ -28,13 +29,12 @@ void main() {
     vec3 v=normalize(gl_in[2].gl_Position.xyz-gl_in[0].gl_Position.xyz);
     vec3 t1=normalize(vec3(v_Tex_Coord[1]-v_Tex_Coord[0],0));
     vec3 t2=normalize(vec3(v_Tex_Coord[2]-v_Tex_Coord[0],0));
-    vec3 n=normalize(cross(u, v));
 
     uVec=u;
     vVec=v;
     t1Vec=t1;
     t2Vec=t2;
-    normal=n;
+    normal=normal_v[0];
     Color1=Color[0];
     v_Tex_Coord1=v_Tex_Coord[0];
     gl_Position = gl_in[0].gl_Position;
@@ -44,7 +44,7 @@ void main() {
     vVec=v;
     t1Vec=t1;
     t2Vec=t2;
-    normal=n;
+    normal=normal_v[1];
     Color1=Color[1];
     v_Tex_Coord1=v_Tex_Coord[1];
     gl_Position = gl_in[1].gl_Position;
@@ -54,7 +54,7 @@ void main() {
     vVec=v;
     t1Vec=t1;
     t2Vec=t2;
-    normal=n;
+    normal=normal_v[2];
     Color1=Color[2];
     v_Tex_Coord1=v_Tex_Coord[2];
     gl_Position = gl_in[2].gl_Position;

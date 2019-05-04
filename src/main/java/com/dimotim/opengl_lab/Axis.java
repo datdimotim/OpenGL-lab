@@ -34,6 +34,11 @@ public class Axis extends GLObject{
     }
 
     @Override
+    protected float[] getNormalArray() {
+        return new float[0];
+    }
+
+    @Override
     protected String getTexturePath() {
         return null;
     }

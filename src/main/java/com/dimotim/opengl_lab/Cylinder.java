@@ -78,6 +78,13 @@ public class Cylinder extends GLObject {
     }
 
     @Override
+    protected float[] getNormalArray() {
+        float[] vert=getVertices();
+        for(int i=2;i<vert.length;i+=3)vert[i]=0;
+        return vert;
+    }
+
+    @Override
     protected String getTexturePath() {
         return texturePath;
     }

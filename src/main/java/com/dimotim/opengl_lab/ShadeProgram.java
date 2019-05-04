@@ -30,6 +30,7 @@ public class ShadeProgram{
     public final int vertexLoc;
     public final int colorLoc;
     public final int textureLoc;
+    public final int normalLoc;
     public final int progId;
     public final int projMatrixLoc;
 	public final int viewMatrixLoc;
@@ -48,10 +49,12 @@ public class ShadeProgram{
         this.vertexLoc = gl.glGetAttribLocation(p, "position");checkErr(gl);
         this.colorLoc = gl.glGetAttribLocation(p, "color");
         this.textureLoc = gl.glGetAttribLocation(p, "a_Tex_Coord");
+        this.normalLoc=gl.glGetAttribLocation(p, "norm_in");
 
         this.viewMatrixLoc=gl.glGetUniformLocation(p,"viewMatrix");
         this.projMatrixLoc=gl.glGetUniformLocation(p,"projMatrix");
         this.textureUniformLoc=gl.glGetUniformLocation(p,"u_texture");
+
         System.out.println(this);
     }
 

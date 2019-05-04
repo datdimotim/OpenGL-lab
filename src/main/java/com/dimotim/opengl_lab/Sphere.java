@@ -1,7 +1,6 @@
 package com.dimotim.opengl_lab;
 
 import static com.jogamp.opengl.GL.GL_TRIANGLES;
-import static com.jogamp.opengl.GL.GL_TRIANGLE_STRIP;
 
 public class Sphere extends GLObject {
     private static final String texturePath = "venera.png";
@@ -44,6 +43,7 @@ public class Sphere extends GLObject {
         return new float[]{(float) x, (float) y, (float) z};
     }
 
+
     private static float[] genPointTexture(int na, int nb){
         final double a=Math.PI/alphaCount*na-Math.PI/2;
         final double b=Math.PI*2/betaCount*nb;
@@ -85,6 +85,11 @@ public class Sphere extends GLObject {
             }
         }
         return v;
+    }
+
+    @Override
+    protected float[] getNormalArray() {
+        return getVertices();
     }
 
     @Override

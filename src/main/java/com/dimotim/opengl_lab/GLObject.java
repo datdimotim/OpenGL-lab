@@ -16,6 +16,7 @@ public abstract class GLObject {
     protected abstract float[] getVertices();
     protected abstract float[] getColorArray(); // RGBA
     protected abstract float[] getTextureArray();
+    protected abstract float[] getNormalArray();
     protected abstract String getTexturePath();
     protected abstract int getPrimitiveType();
 
@@ -38,22 +39,24 @@ public abstract class GLObject {
         gl.glVertexAttribPointer(dataLoc, dataPerVertex, GL_FLOAT, false, 0, 0);
     }
 
-    private void createBuffers(GL4 gl, int vaoId, float[] verticesArray, float[] colorArray, float[] textureArray, ShadeProgram program) {
+    private void createBuffers(GL4 gl, int vaoId, float[] verticesArray, float[] colorArray, float[] textureArray, float[] normalArray, ShadeProgram program) {
         gl.glBindVertexArray(vaoId);
         int vertexBufferId = this.generateBufferId(gl);
         int colorBufferId = this.generateBufferId(gl);
         int textureBufferId = this.generateBufferId(gl);
+        int normalBufferId = this.generateBufferId(gl);
 
         this.bindBuffer(gl, vertexBufferId, verticesArray, program.vertexLoc,3);
         this.bindBuffer(gl, colorBufferId, colorArray, program.colorLoc,3);
         this.bindBuffer(gl, textureBufferId, textureArray, program.textureLoc,2);
+        this.bindBuffer(gl, normalBufferId, normalArray, program.normalLoc,3);
     }
 
     private void init(GL4 gl, ShadeProgram program){
         vao=generateVAOId(gl);
         float[] vertices=getVertices();
         countOfVertexes=vertices.length/3;
-        createBuffers(gl,vao,vertices,getColorArray(), getTextureArray(),program);
+        createBuffers(gl,vao,vertices,getColorArray(), getTextureArray(),getNormalArray(),program);
 
         gl.glActiveTexture(GL_TEXTURE0);
 
