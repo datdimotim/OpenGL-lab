@@ -1,5 +1,5 @@
 
-#version 150
+#version 330
 
 uniform mat4 viewMatrix, projMatrix;
 
@@ -14,5 +14,5 @@ void main()
 {
     Color = color;
     v_Tex_Coord = a_Tex_Coord;
-    gl_Position =  viewMatrix*position ;
+    gl_Position =  (viewMatrix*position) ;
 }

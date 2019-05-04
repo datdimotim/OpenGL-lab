@@ -1,7 +1,7 @@
 package com.dimotim.opengl_lab;
 
 
-import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL4;
 
 
 public class CompositeModel {
@@ -9,7 +9,7 @@ public class CompositeModel {
     private final Sphere sphere=new Sphere();
     private final Cylinder cylinder=new Cylinder();
 
-    public void draw(GL3 gl, ShadeProgram shader, float[] modelMatrix){
+    public void draw(GL4 gl, ShadeProgram shader, float[] modelMatrix){
 
         float[] mat;
 
