@@ -23,7 +23,7 @@ void main()
     0,0,0,1
     );
 
-    vec4 light_source=vec4(1,1,-1,1.0);
+    vec4 light_source=vec4(0,0,-0.4,1.0);
     Color_g = color;
     v_Tex_Coord = a_Tex_Coord;
 

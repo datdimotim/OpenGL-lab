@@ -16,6 +16,7 @@ public class BasicFrame implements GLEventListener {
 
     private final Axis axis = new Axis();
     private final NetPlane netPlane=new NetPlane();
+    private final Marker marker=new Marker();
     private final CompositeModel model=new CompositeModel();
     private Shader shader = null;
     private Shader netShader=null;
@@ -88,6 +89,7 @@ public class BasicFrame implements GLEventListener {
         gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
         axis.draw(gl,netShader,modelMatrix);
         netPlane.draw(gl,netShader,modelMatrix);
+        marker.draw(gl,netShader,LinAl.matrixMul(LinAl.translate(0,0,-0.4),modelMatrix));
 
         checkErr(gl);
     }

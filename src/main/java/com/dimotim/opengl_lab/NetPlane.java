@@ -59,12 +59,12 @@ public class NetPlane extends GLObject{
 
     @Override
     protected float[] getTextureArray() {
-        return getColorArray();
+        return new float[0];
     }
 
     @Override
     protected float[] getNormalArray() {
-        return getColorArray();
+        return new float[0];
     }
 
     @Override
