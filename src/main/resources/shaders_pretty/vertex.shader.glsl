@@ -2,11 +2,13 @@
 #version 330
 
 uniform mat4 modelMatrix, viewMatrix, projMatrix;
+uniform vec3 light_pos;
 
 in vec4 position;
 in vec3 color;
 in vec2 a_Tex_Coord;
 in vec3 norm_in;
+
 
 out vec3 Color_g;
 out vec2 v_Tex_Coord;
@@ -23,7 +25,7 @@ void main()
     0,0,0,1
     );
 
-    vec4 light_source=vec4(0,0,-0.4,1.0);
+    vec4 light_source=vec4(light_pos,1.0);
     Color_g = color;
     v_Tex_Coord = a_Tex_Coord;
 

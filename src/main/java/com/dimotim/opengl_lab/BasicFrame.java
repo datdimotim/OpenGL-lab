@@ -18,7 +18,7 @@ public class BasicFrame implements GLEventListener {
     private final NetPlane netPlane=new NetPlane();
     private final Marker marker=new Marker();
     private final CompositeModel model=new CompositeModel();
-    private Shader shader = null;
+    private TextureShader shader = null;
     private Shader netShader=null;
 
     // Первый-куда, второй - координата верха
@@ -43,6 +43,8 @@ public class BasicFrame implements GLEventListener {
             0, 0, 0, 1
     };
 
+    private final float[] lightPos=new float[3];
+
     private float[] prevViewMatrix=viewMatrix;
 
     public void changeViewMatrixByMouse(double angle, double x, double y){
@@ -55,6 +57,12 @@ public class BasicFrame implements GLEventListener {
 
     public void scale(int dir){
         projectionMatrix=LinAl.matrixMul(projectionMatrix,LinAl.scale((float) ((100.0+dir)/100)));
+    }
+
+    public void setLightPos(double x, double y, double z){
+        lightPos[0]= (float) x;
+        lightPos[1]= (float) y;
+        lightPos[2]= (float) z;
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -82,6 +90,7 @@ public class BasicFrame implements GLEventListener {
 
 
         shader.use(gl);
+        gl.glUniform3f(shader.getLightPosLoc(),lightPos[0],lightPos[1],lightPos[2]);
         gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
         model.draw(gl,shader,modelMatrix);
 
@@ -89,7 +98,7 @@ public class BasicFrame implements GLEventListener {
         gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
         axis.draw(gl,netShader,modelMatrix);
         netPlane.draw(gl,netShader,modelMatrix);
-        marker.draw(gl,netShader,LinAl.matrixMul(LinAl.translate(0,0,-0.4),modelMatrix));
+        marker.draw(gl,netShader,LinAl.matrixMul(LinAl.translate(lightPos[0],lightPos[1],lightPos[2]),modelMatrix));
 
         checkErr(gl);
     }

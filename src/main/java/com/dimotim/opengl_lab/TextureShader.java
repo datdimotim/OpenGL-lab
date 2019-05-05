@@ -14,6 +14,7 @@ public class TextureShader extends Shader{
 	public final int modelMatrixLoc;
 	public final int textureUniformLoc;
 	public final int imgNormalRatioLoc;
+	public final int lightPosLoc;
 
     @Override
     public String getVertexShaderPath() {
@@ -44,6 +45,7 @@ public class TextureShader extends Shader{
         this.modelMatrixLoc=getUniformLocation("modelMatrix",gl);
         this.textureUniformLoc=getUniformLocation("u_texture",gl);
         this.imgNormalRatioLoc=getUniformLocation("imgNormalRatio",gl);
+        this.lightPosLoc=getUniformLocation("light_pos",gl);
         System.out.println(this);
     }
 }
