@@ -9,7 +9,8 @@ in vec3 uVec;
 in vec3 vVec;
 in vec3 t1Vec;
 in vec3 t2Vec;
-
+in vec4 light_m;
+in vec4 position;
 out vec4 outColor;
 
 
@@ -17,7 +18,10 @@ out vec4 outColor;
 void main(){
     float onePixel =1.0 / 512;
 
-    vec3 light=vec3(0,0,1.0);
+    vec4 light_mToPosition=position-light_m;
+    vec3 light=normalize(vec3(light_mToPosition[0],light_mToPosition[1],light_mToPosition[2]));
+
+    vec3 eye=vec3(0,0,1.0);
     vec4 textureColor=texture(u_texture, v_Tex_Coord1);
 
     vec3 uvt=vec3(0,0,1.0);
@@ -31,8 +35,8 @@ void main(){
     vec3 exactNormal = mvert * inverse(mtex)*uvt;
 
 
-    //outColor=vec4(v_Tex_Coord,0.0,1.0);
-    vec4 texturedColor=textureColor*abs(dot(light,normal));
-    vec4 bumpedColor=vec4(0.7,0.7,0.7,1)*abs(dot(light,exactNormal));
+    //outColor=vec4(1,1,1,1);
+    vec4 texturedColor=textureColor*((dot(-light,normal))+ 0*pow(dot(eye,-normal),0.1));
+    vec4 bumpedColor=vec4(0.7,0.7,0.7,1)*(dot(-light,exactNormal));
     outColor=(texturedColor*(1-imgNormalRatio) + bumpedColor*imgNormalRatio)+vec4(Color1,1.0);
 }

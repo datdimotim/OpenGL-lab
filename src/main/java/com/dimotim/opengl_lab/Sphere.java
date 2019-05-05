@@ -4,10 +4,10 @@ import static com.jogamp.opengl.GL.GL_TRIANGLES;
 
 public class Sphere extends GLObject {
     private static final String texturePath = "venera.png";
-    private static final double R=0.1;
+    private static final double R=0.12;
     private static final double am=Math.PI/2;
-    private static final int betaCount=30;
-    private static final int alphaCount=30;
+    private static final int betaCount=25;
+    private static final int alphaCount=25;
 
     private static float[][] genQuad(int na, int nb){
         return new float[][]{

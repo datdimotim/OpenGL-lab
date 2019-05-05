@@ -20,24 +20,24 @@ public class BasicFrame implements GLEventListener {
 
     // Первый-куда, второй - координата верха
     private float[] projectionMatrix = {
-            1.0f, 0, 0, 0,
-            0, 1.0f, 0, 0,
-            0, 0, 1.0f, 0,
-            0, 0, 0, 1f
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
     };
 
     private float[] viewMatrix = {
-            1f, 0, 0, 0,
-            0, 1f, 0, 0,
-            0, 0, 1f, 0,
-            0, 0, 0, 1f
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
     };
 
     private float[] modelMatrix = {
-            1f, 0, 0, 0,
-            0, 1f, 0, 0,
-            0, 0, 1f, 0,
-            0, 0, 0, 1f
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
     };
 
     private float[] prevViewMatrix=viewMatrix;
@@ -80,13 +80,13 @@ public class BasicFrame implements GLEventListener {
 
 
         //gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, projectionMatrix, 0);
-        //gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, viewMatrix, 0);
+        gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
         //gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
         //axis.draw(gl, shader);
         //sphere.draw(gl,shader, projectionMatrix);
 
 
-        model.draw(gl,shader,LinAl.matrixMul(projectionMatrix,viewMatrix));
+        model.draw(gl,shader,modelMatrix);
         //axis.draw(gl,shader,viewMatrix);
 
         checkErr(gl);

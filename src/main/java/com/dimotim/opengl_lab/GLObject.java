@@ -70,7 +70,7 @@ public abstract class GLObject {
 
     public void draw(GL4 gl, ShadeProgram program, float[] modelMatrix){
         if(!inited)init(gl, program);
-        gl.glUniformMatrix4fv(program.viewMatrixLoc, 1, false, modelMatrix, 0);
+        gl.glUniformMatrix4fv(program.modelMatrixLoc, 1, false, modelMatrix, 0);
 
         gl.glUniform1f(program.imgNormalRatioLoc,getImgNormalRatio());
 

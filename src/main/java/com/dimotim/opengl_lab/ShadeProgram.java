@@ -33,12 +33,13 @@ public class ShadeProgram{
     public final int progId;
     public final int projMatrixLoc;
 	public final int viewMatrixLoc;
+	public final int modelMatrixLoc;
 	public final int textureUniformLoc;
 	public final int imgNormalRatioLoc;
     public ShadeProgram(GL4 gl){
-        int v = this.newShaderFromCurrentClass(gl, "/vertex.shader.glsl", ShaderType.VertexShader);
-        int f = this.newShaderFromCurrentClass(gl, "/fragment.shader.glsl", ShaderType.FragmentShader);
-        int g = this.newShaderFromCurrentClass(gl,"/geom.shader.glsl",ShaderType.GeomShader);
+        int v = this.newShaderFromCurrentClass(gl, "/shaders_pretty/vertex.shader.glsl", ShaderType.VertexShader);
+        int f = this.newShaderFromCurrentClass(gl, "/shaders_pretty/fragment.shader.glsl", ShaderType.FragmentShader);
+        int g = this.newShaderFromCurrentClass(gl, "/shaders_pretty/geom.shader.glsl",ShaderType.GeomShader);
         System.out.println(g);
         int p = this.createProgram(gl, v, f, g);
 
@@ -53,6 +54,7 @@ public class ShadeProgram{
 
         this.viewMatrixLoc=gl.glGetUniformLocation(p,"viewMatrix");
         this.projMatrixLoc=gl.glGetUniformLocation(p,"projMatrix");
+        this.modelMatrixLoc=gl.glGetUniformLocation(p,"modelMatrix");
         this.textureUniformLoc=gl.glGetUniformLocation(p,"u_texture");
         this.imgNormalRatioLoc=gl.glGetUniformLocation(p,"imgNormalRatio");
         System.out.println(this);
