@@ -34,9 +34,8 @@ void main(){
 
     vec3 exactNormal = mvert * inverse(mtex)*uvt;
 
-
-    //outColor=vec4(1,1,1,1);
-    vec4 texturedColor=textureColor*((dot(-light,normal))+ 0*pow(dot(eye,-normal),0.1));
+    vec4 texturedColor=textureColor*((dot(-light,normal))               + 0*pow(dot(eye,-normal),0.1));
     vec4 bumpedColor=vec4(0.7,0.7,0.7,1)*(dot(-light,exactNormal));
-    outColor=(texturedColor*(1-imgNormalRatio) + bumpedColor*imgNormalRatio)+vec4(Color1,1.0);
+    vec4 resColor=(texturedColor*(1-imgNormalRatio) + bumpedColor*imgNormalRatio);
+    outColor=vec4(Color1,1.0)  +  resColor;
 }

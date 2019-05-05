@@ -6,7 +6,6 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.sun.prism.impl.BufferUtil;
-import lombok.Data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,46 +17,53 @@ import java.nio.IntBuffer;
 import java.nio.charset.Charset;
 
 import static com.dimotim.opengl_lab.BasicFrame.checkErr;
+import static com.jogamp.opengl.GL.GL_ONE;
 import static com.jogamp.opengl.GL.GL_TEXTURE_2D;
+import static com.jogamp.opengl.GL.GL_TRUE;
+import static com.jogamp.opengl.GL2ES2.GL_LINK_STATUS;
 import static com.jogamp.opengl.GL2ES2.GL_RED;
 import static com.jogamp.opengl.GL2ES3.*;
+import static com.jogamp.opengl.GL2ES3.GL_BLUE;
 import static com.jogamp.opengl.GL2GL3.GL_TEXTURE_SWIZZLE_RGBA;
 
+public abstract class Shader {
+    private final int programId;
 
-@Data
-public class ShadeProgram{
-    public final int vertexLoc;
-    public final int colorLoc;
-    public final int textureLoc;
-    public final int normalLoc;
-    public final int progId;
-    public final int projMatrixLoc;
-	public final int viewMatrixLoc;
-	public final int modelMatrixLoc;
-	public final int textureUniformLoc;
-	public final int imgNormalRatioLoc;
-    public ShadeProgram(GL4 gl){
-        int v = this.newShaderFromCurrentClass(gl, "/shaders_pretty/vertex.shader.glsl", ShaderType.VertexShader);
-        int f = this.newShaderFromCurrentClass(gl, "/shaders_pretty/fragment.shader.glsl", ShaderType.FragmentShader);
-        int g = this.newShaderFromCurrentClass(gl, "/shaders_pretty/geom.shader.glsl",ShaderType.GeomShader);
+
+    public abstract String getVertexShaderPath();
+    public abstract String getGeomShaderPath();
+    public abstract String getFragmentShaderPath();
+    public abstract int getVertexLoc();
+    public abstract int getTextureLoc();
+    public abstract int getNormalLoc();
+    public abstract int getColorLoc();
+    public abstract int getTextureUniformLoc();
+    public abstract int getModelMatrixLoc();
+    public abstract int getViewMatrixLoc();
+
+
+    public Shader(GL4 gl){
+        int v = this.newShaderFromCurrentClass(gl, getVertexShaderPath(), TextureShader.ShaderType.VertexShader);
+        int f = this.newShaderFromCurrentClass(gl, getFragmentShaderPath(), TextureShader.ShaderType.FragmentShader);
+        int g = this.newShaderFromCurrentClass(gl, getGeomShaderPath(), TextureShader.ShaderType.GeomShader);
         System.out.println(g);
         int p = this.createProgram(gl, v, f, g);
+        programId=p;
 
         gl.glBindFragDataLocation(p, 0, "outColor");
         printProgramInfoLog(gl, p);
+    }
 
-        this.progId=p;checkErr(gl);
-        this.vertexLoc = gl.glGetAttribLocation(p, "position");checkErr(gl);
-        this.colorLoc = gl.glGetAttribLocation(p, "color");
-        this.textureLoc = gl.glGetAttribLocation(p, "a_Tex_Coord");
-        this.normalLoc=gl.glGetAttribLocation(p, "norm_in");
+    public int getAttribLocation(String name, GL4 gl){
+        return gl.glGetAttribLocation(programId,name);
+    }
 
-        this.viewMatrixLoc=gl.glGetUniformLocation(p,"viewMatrix");
-        this.projMatrixLoc=gl.glGetUniformLocation(p,"projMatrix");
-        this.modelMatrixLoc=gl.glGetUniformLocation(p,"modelMatrix");
-        this.textureUniformLoc=gl.glGetUniformLocation(p,"u_texture");
-        this.imgNormalRatioLoc=gl.glGetUniformLocation(p,"imgNormalRatio");
-        System.out.println(this);
+    public int getUniformLocation(String name, GL4 gl){
+        return gl.glGetUniformLocation(programId,name);
+    }
+
+    public void use(GL4 gl4){
+        gl4.glUseProgram(programId);
     }
 
     public static int loadTexture(String file, GL4 gl) {
@@ -199,7 +205,7 @@ public class ShadeProgram{
         return programId;
     }
 
-    private int newShaderFromCurrentClass(GL4 gl, String fileName, ShaderType type) {
+    private int newShaderFromCurrentClass(GL4 gl, String fileName, TextureShader.ShaderType type) {
         String shaderSource = this.loadStringFileFromCurrentPackage(fileName);
         int shaderType = type.getGlType();
         int id = gl.glCreateShader(shaderType);

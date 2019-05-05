@@ -15,8 +15,10 @@ public class BasicFrame implements GLEventListener {
     private int textureId;
 
     private final Axis axis = new Axis();
+    private final NetPlane netPlane=new NetPlane();
     private final CompositeModel model=new CompositeModel();
-    private ShadeProgram shader = null;
+    private Shader shader = null;
+    private Shader netShader=null;
 
     // Первый-куда, второй - координата верха
     private float[] projectionMatrix = {
@@ -65,7 +67,7 @@ public class BasicFrame implements GLEventListener {
             System.err.println("ERROR on render2 : " + error2);
         }
 
-        gl.glUseProgram(shader.progId);
+
 
         gl.glClearColor(0, 0, 0, 0);
         gl.glEnable(GL_DEPTH_TEST);
@@ -78,16 +80,14 @@ public class BasicFrame implements GLEventListener {
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
 
 
-
-        //gl.glUniformMatrix4fv(shader.monitorMatrixId, 1, false, projectionMatrix, 0);
-        gl.glUniformMatrix4fv(shader.viewMatrixLoc, 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
-        //gl.glUniformMatrix4fv(shader.modelMatrixId, 1, false, modelMatrix, 0);
-        //axis.draw(gl, shader);
-        //sphere.draw(gl,shader, projectionMatrix);
-
-
+        shader.use(gl);
+        gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
         model.draw(gl,shader,modelMatrix);
-        //axis.draw(gl,shader,viewMatrix);
+
+        netShader.use(gl);
+        gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
+        axis.draw(gl,netShader,modelMatrix);
+        netPlane.draw(gl,netShader,modelMatrix);
 
         checkErr(gl);
     }
@@ -100,7 +100,8 @@ public class BasicFrame implements GLEventListener {
         System.out.println("init");
         GL4 gl = glad.getGL().getGL4();
         System.out.println("GL version:" + gl.glGetString(GL.GL_VERSION));
-        shader = new ShadeProgram(gl);
+        shader = new TextureShader(gl);
+        netShader=new NetShader(gl);
         checkErr(gl);
     }
 

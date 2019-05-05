@@ -3,7 +3,7 @@ package com.dimotim.opengl_lab;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
 
-import static com.dimotim.opengl_lab.ShadeProgram.loadTexture;
+import static com.dimotim.opengl_lab.Shader.loadTexture;
 import static com.jogamp.opengl.GL4.*;
 
 
@@ -40,20 +40,31 @@ public abstract class GLObject {
         gl.glVertexAttribPointer(dataLoc, dataPerVertex, GL_FLOAT, false, 0, 0);
     }
 
-    private void createBuffers(GL4 gl, int vaoId, float[] verticesArray, float[] colorArray, float[] textureArray, float[] normalArray, ShadeProgram program) {
+    private void createBuffers(GL4 gl, int vaoId, float[] verticesArray, float[] colorArray, float[] textureArray, float[] normalArray, Shader program) {
         gl.glBindVertexArray(vaoId);
-        int vertexBufferId = this.generateBufferId(gl);
-        int colorBufferId = this.generateBufferId(gl);
-        int textureBufferId = this.generateBufferId(gl);
-        int normalBufferId = this.generateBufferId(gl);
 
-        this.bindBuffer(gl, vertexBufferId, verticesArray, program.vertexLoc,3);
-        this.bindBuffer(gl, colorBufferId, colorArray, program.colorLoc,3);
-        this.bindBuffer(gl, textureBufferId, textureArray, program.textureLoc,2);
-        this.bindBuffer(gl, normalBufferId, normalArray, program.normalLoc,3);
+        if(-1!=program.getVertexLoc()) {
+            int vertexBufferId = this.generateBufferId(gl);
+            bindBuffer(gl, vertexBufferId, verticesArray, program.getVertexLoc(), 3);
+        }
+
+        if(-1!=program.getColorLoc()) {
+            int colorBufferId = this.generateBufferId(gl);
+            this.bindBuffer(gl, colorBufferId, colorArray, program.getColorLoc(), 3);
+        }
+
+        if(-1!=program.getTextureLoc()) {
+            int textureBufferId = this.generateBufferId(gl);
+            this.bindBuffer(gl, textureBufferId, textureArray, program.getTextureLoc(), 2);
+        }
+
+        if(-1!=program.getNormalLoc()) {
+            int normalBufferId = this.generateBufferId(gl);
+            this.bindBuffer(gl, normalBufferId, normalArray, program.getNormalLoc(), 3);
+        }
     }
 
-    private void init(GL4 gl, ShadeProgram program){
+    private void init(GL4 gl, Shader program){
         vao=generateVAOId(gl);
         float[] vertices=getVertices();
         countOfVertexes=vertices.length/3;
@@ -68,25 +79,21 @@ public abstract class GLObject {
         inited=true;
     }
 
-    public void draw(GL4 gl, ShadeProgram program, float[] modelMatrix){
+    public void draw(GL4 gl, Shader program, float[] modelMatrix){
         if(!inited)init(gl, program);
-        gl.glUniformMatrix4fv(program.modelMatrixLoc, 1, false, modelMatrix, 0);
+        gl.glUniformMatrix4fv(program.getModelMatrixLoc(), 1, false, modelMatrix, 0);
 
-        gl.glUniform1f(program.imgNormalRatioLoc,getImgNormalRatio());
+        if(program instanceof TextureShader) {
+            gl.glUniform1f(((TextureShader) program).imgNormalRatioLoc, getImgNormalRatio());
+        }
 
         if(textureName!=-1) {
             gl.glActiveTexture(GL_TEXTURE0);
             gl.glBindTexture(GL_TEXTURE_2D, textureName);
-            gl.glUniform1i(program.textureUniformLoc, 0);
+            gl.glUniform1i(program.getTextureUniformLoc(), 0);
         }
 
         gl.glBindVertexArray(this.vao);
-
-
-
-
-
-
         gl.glDrawArrays(getPrimitiveType(), 0, countOfVertexes);
     }
 }

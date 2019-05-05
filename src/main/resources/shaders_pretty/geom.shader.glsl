@@ -3,7 +3,7 @@
 layout (triangles) in;
 layout (triangle_strip, max_vertices=3) out;
 
-in vec3 Color[3];
+in vec3 Color_g[3];
 in vec2 v_Tex_Coord[3];
 in vec3 normal_v[3];
 in vec4 light[3];
@@ -38,7 +38,7 @@ void main() {
     t2Vec=t2;
     light_m=light[0];
     normal=normal_v[0];
-    Color1=Color[0];
+    Color1=Color_g[0];
     v_Tex_Coord1=v_Tex_Coord[0];
     gl_Position = gl_in[0].gl_Position;
     position=gl_Position;
@@ -50,7 +50,7 @@ void main() {
     t2Vec=t2;
     light_m=light[1];
     normal=normal_v[1];
-    Color1=Color[1];
+    Color1=Color_g[1];
     v_Tex_Coord1=v_Tex_Coord[1];
     gl_Position = gl_in[1].gl_Position;
     position=gl_Position;
@@ -62,7 +62,7 @@ void main() {
     t2Vec=t2;
     light_m=light[2];
     normal=normal_v[2];
-    Color1=Color[2];
+    Color1=Color_g[2];
     v_Tex_Coord1=v_Tex_Coord[2];
     gl_Position = gl_in[2].gl_Position;
     position=gl_Position;

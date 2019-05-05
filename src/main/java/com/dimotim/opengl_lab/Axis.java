@@ -3,7 +3,6 @@ package com.dimotim.opengl_lab;
 import static com.jogamp.opengl.GL.GL_LINES;
 
 public class Axis extends GLObject{
-
     @Override
     protected float[] getVertices() {
         return new float[]{
@@ -30,12 +29,12 @@ public class Axis extends GLObject{
 
     @Override
     protected float[] getTextureArray() {
-        return new float[0];
+        return getColorArray();
     }
 
     @Override
     protected float[] getNormalArray() {
-        return new float[0];
+        return getColorArray();
     }
 
     @Override
@@ -50,6 +49,6 @@ public class Axis extends GLObject{
 
     @Override
     public float getImgNormalRatio() {
-        return 1;
+        return 0;
     }
 }

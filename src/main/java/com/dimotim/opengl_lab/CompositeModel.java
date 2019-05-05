@@ -9,7 +9,7 @@ public class CompositeModel {
     private final Sphere sphere=new Sphere();
     private final Cylinder cylinder=new Cylinder();
 
-    public void draw(GL4 gl, ShadeProgram shader, float[] modelMatrix){
+    public void draw(GL4 gl, Shader shader, float[] modelMatrix){
 
         float[] mat;
 
