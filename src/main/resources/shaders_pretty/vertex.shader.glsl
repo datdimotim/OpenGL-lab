@@ -14,6 +14,7 @@ out vec3 Color_g;
 out vec2 v_Tex_Coord;
 out vec3 normal_v;
 out vec4 light;
+out vec4 posg;
 
 void main()
 {
@@ -35,5 +36,6 @@ void main()
 
     light=viewMatrix*light_source;
     normal_v=normalize((viewMatrix*modelMatrix*vec4(norm_in,0)).xyz);
+    posg=viewMatrix*modelMatrix*position;
     gl_Position =pers* (viewMatrix*modelMatrix*position) ;
 }

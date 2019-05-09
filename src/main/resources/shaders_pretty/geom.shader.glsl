@@ -7,6 +7,7 @@ in vec3 Color_g[3];
 in vec2 v_Tex_Coord[3];
 in vec3 normal_v[3];
 in vec4 light[3];
+in vec4 posg[3];
 
 
 out vec3 Color1;
@@ -41,7 +42,7 @@ void main() {
     Color1=Color_g[0];
     v_Tex_Coord1=v_Tex_Coord[0];
     gl_Position = gl_in[0].gl_Position;
-    position=gl_Position;
+    position=posg[0];
     EmitVertex();
 
     uVec=u;
@@ -53,7 +54,7 @@ void main() {
     Color1=Color_g[1];
     v_Tex_Coord1=v_Tex_Coord[1];
     gl_Position = gl_in[1].gl_Position;
-    position=gl_Position;
+    position=posg[1];
     EmitVertex();
 
     uVec=u;
@@ -65,7 +66,7 @@ void main() {
     Color1=Color_g[2];
     v_Tex_Coord1=v_Tex_Coord[2];
     gl_Position = gl_in[2].gl_Position;
-    position=gl_Position;
+    position=posg[2];
     EmitVertex();
     EndPrimitive();
 }
