@@ -38,4 +38,5 @@ void main(){
     vec4 bumpedColor=vec4(0.7,0.7,0.7,1)*(dot(-light,exactNormal));
     vec4 resColor=(texturedColor*(1-imgNormalRatio) + bumpedColor*imgNormalRatio);
     outColor=vec4(Color1,1.0)  +  resColor;
+    //outColor=vec4(1,1,1,1);
 }

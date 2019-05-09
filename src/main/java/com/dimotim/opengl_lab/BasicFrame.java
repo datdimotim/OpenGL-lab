@@ -26,7 +26,7 @@ public class BasicFrame implements GLEventListener {
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            0, 0, 0, 1
+            0.2f, 0.2f, 0.7f, 1
     };
 
     private float[] viewMatrix = {

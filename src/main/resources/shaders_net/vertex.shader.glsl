@@ -10,15 +10,16 @@ out vec3 Color_g;
 
 void main()
 {
-    float a=3.14/180*80;
-    float s=sin(a);
-    float c=cos(a);
+
+    float alpha=3.14/6;
+    float l=0.1;
+    float ll=10;
 
     mat4 pers=mat4(
-        1,0,0,0,
-        0,1,0,0,
-        0,0,1,0.7,
-        0,0,0,1
+    (1/tan(alpha)),    0,    0,      0,
+    0,    1/(tan(alpha)),    0,      0,
+    0,    0,    (ll+l)/(ll-l),       1,
+    0,    0,      -2*ll*l/(ll-l),    0
     );
     Color_g = color;
     gl_Position =  pers*viewMatrix*modelMatrix*position ;
