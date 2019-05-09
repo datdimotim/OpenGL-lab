@@ -26,7 +26,7 @@ public class BasicFrame implements GLEventListener {
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            0.2f, 0.2f, 0.7f, 1
+            0, 0, 0, 1
     };
 
     private float[] viewMatrix = {
@@ -59,10 +59,19 @@ public class BasicFrame implements GLEventListener {
         projectionMatrix=LinAl.matrixMul(projectionMatrix,LinAl.scale((float) ((100.0+dir)/100)));
     }
 
-    public void setLightPos(double x, double y, double z){
-        lightPos[0]= (float) x;
-        lightPos[1]= (float) y;
-        lightPos[2]= (float) z;
+    public void setLightPos(float x, float y, float z){
+        lightPos[0]= x;
+        lightPos[1]= y;
+        lightPos[2]= z;
+    }
+
+    public void setObserverPos(float x, float y, float z){
+        projectionMatrix = new float[]{
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                -x, -y,-z, 1
+        };
     }
 
     public void display(GLAutoDrawable drawable) {

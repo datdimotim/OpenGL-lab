@@ -23,39 +23,21 @@ public class ControlPanel extends JPanel {
     }
 
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(4, 1));
+        setLayout(new GridLayout(2, 1));
 
-        JSlider lightX=new JSlider(-100,100);
-        JSlider lightY=new JSlider(-100,100);
-        JSlider lightZ=new JSlider(-100,100);
-        Consumer<ChangeEvent> lightChangeListener=v->{
-            canvas.invoke(false, ee -> {
-                frame.setLightPos(lightX.getValue()/100.0,lightY.getValue()/100.0,lightZ.getValue()/100.0);
+        add(new XYZPanel("Источник света",xyz->{
+            canvas.invoke(false,ee->{
+                frame.setLightPos(xyz[0],xyz[1],xyz[2]);
                 return false;
             });
-        };
-        lightX.addChangeListener(lightChangeListener::accept);
-        lightY.addChangeListener(lightChangeListener::accept);
-        lightZ.addChangeListener(lightChangeListener::accept);
-        lightX.setValue(0);
-        lightY.setValue(0);
-        lightZ.setValue(-100);
+        }));
 
-        add(new JLabel("Источник света"));
-        add(new JPanel(){{
-            add(new JLabel("x: "));
-            add(lightX);
-        }});
-
-        add(new JPanel(){{
-            add(new JLabel("y: "));
-            add(lightY);
-        }});
-
-        add(new JPanel(){{
-            add(new JLabel("z: "));
-            add(lightZ);
-        }});
+        add(new XYZPanel("Точка наблюдения",xyz->{
+            canvas.invoke(false,ee->{
+                frame.setObserverPos(xyz[0],xyz[1],xyz[2]);
+                return false;
+            });
+        }));
 
         MouseAdapter adapter = new MouseAdapter() {
             private int xStart;
@@ -100,5 +82,48 @@ public class ControlPanel extends JPanel {
         canvas.addMouseListener(adapter);
         canvas.addMouseMotionListener(adapter);
         canvas.addMouseWheelListener(adapter);
+    }
+}
+
+
+class XYZPanel extends JPanel{
+    public XYZPanel(String caption,Consumer<float[]> changeListener){
+        setLayout(new GridLayout(4, 1));
+
+        JSlider x=new JSlider(-100,100);
+        JSlider y=new JSlider(-100,100);
+        JSlider z=new JSlider(-100,100);
+        JLabel xl=new JLabel();
+        JLabel yl=new JLabel();
+        JLabel zl=new JLabel();
+        Consumer<ChangeEvent> lightChangeListener=v->{
+            float[] xyz=new float[]{(float) (x.getValue()/100.0), (float) (y.getValue()/100.0), (float) (z.getValue()/100.0)};
+            xl.setText("x="+String.format("%.2f", xyz[0]));
+            yl.setText("y="+String.format("%.2f", xyz[1]));
+            zl.setText("z="+String.format("%.2f", xyz[2]));
+            changeListener.accept(xyz);
+        };
+        x.addChangeListener(lightChangeListener::accept);
+        y.addChangeListener(lightChangeListener::accept);
+        z.addChangeListener(lightChangeListener::accept);
+        x.setValue(0);
+        y.setValue(0);
+        z.setValue(-100);
+
+        add(new JLabel(caption));
+        add(new JPanel(){{
+            add(xl);
+            add(x);
+        }});
+
+        add(new JPanel(){{
+            add(yl);
+            add(y);
+        }});
+
+        add(new JPanel(){{
+            add(zl);
+            add(z);
+        }});
     }
 }
