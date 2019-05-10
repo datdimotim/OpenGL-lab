@@ -4,6 +4,10 @@ import static java.lang.Math.*;
 
 public class LinAl {
 
+    public static float[] identity(){
+        return translate(0,0,0);
+    }
+
     public static float[] translate(double dx, double dy, double dz) {
         return new float[]{
                 1f, 0, 0, 0,

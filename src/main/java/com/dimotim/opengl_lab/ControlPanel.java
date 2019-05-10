@@ -5,9 +5,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.util.function.Consumer;
 
 public class ControlPanel extends JPanel {
@@ -73,7 +71,7 @@ public class ControlPanel extends JPanel {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 canvas.invoke(false, ee -> {
-                    frame.scale(e.getWheelRotation());
+                    //frame.scale(e.getWheelRotation());
                     return false;
                 });
             }
@@ -82,6 +80,22 @@ public class ControlPanel extends JPanel {
         canvas.addMouseListener(adapter);
         canvas.addMouseMotionListener(adapter);
         canvas.addMouseWheelListener(adapter);
+        canvas.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                Consumer<float[]> action=dir->{
+                  canvas.invoke(false,ee->{
+                      frame.translateObserver(dir);
+                      return false;
+                  });
+                };
+                final float d=0.05f;
+                if(e.getKeyChar()=='w') action.accept(new float[]{0,0,d});
+                if(e.getKeyChar()=='s') action.accept(new float[]{0,0,-d});
+                if(e.getKeyChar()=='a') action.accept(new float[]{-d,0,0});
+                if(e.getKeyChar()=='d') action.accept(new float[]{d,0,0});
+            }
+        });
     }
 }
 

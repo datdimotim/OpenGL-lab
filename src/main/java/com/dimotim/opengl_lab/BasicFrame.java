@@ -8,6 +8,9 @@ import com.jogamp.opengl.util.FPSAnimator;
 
 import javax.swing.*;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import static com.jogamp.opengl.GL.*;
 
 
@@ -21,22 +24,7 @@ public class BasicFrame implements GLEventListener {
     private TextureShader shader = null;
     private Shader netShader=null;
 
-    // Первый-куда, второй - координата верха
-    private float[] projectionMatrix = {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-    };
-
     private float[] viewMatrix = {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-    };
-
-    private float[] modelMatrix = {
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
@@ -55,9 +43,6 @@ public class BasicFrame implements GLEventListener {
         prevViewMatrix=viewMatrix;
     }
 
-    public void scale(int dir){
-        projectionMatrix=LinAl.matrixMul(projectionMatrix,LinAl.scale((float) ((100.0+dir)/100)));
-    }
 
     public void setLightPos(float x, float y, float z){
         lightPos[0]= x;
@@ -66,12 +51,18 @@ public class BasicFrame implements GLEventListener {
     }
 
     public void setObserverPos(float x, float y, float z){
-        projectionMatrix = new float[]{
+        viewMatrix= LinAl.matrixMul(new float[]{
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 -x, -y,-z, 1
-        };
+        },viewMatrix);
+        prevViewMatrix=viewMatrix;
+    }
+
+    public void translateObserver(float[] dir){
+        viewMatrix=LinAl.matrixMul(viewMatrix,LinAl.translate(-dir[0],-dir[1],-dir[2]));
+        prevViewMatrix=viewMatrix;
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -100,14 +91,14 @@ public class BasicFrame implements GLEventListener {
 
         shader.use(gl);
         gl.glUniform3f(shader.getLightPosLoc(),lightPos[0],lightPos[1],lightPos[2]);
-        gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
-        model.draw(gl,shader,modelMatrix);
+        gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, viewMatrix, 0);
+        model.draw(gl,shader,LinAl.identity());
 
         netShader.use(gl);
-        gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false, LinAl.matrixMul(projectionMatrix,viewMatrix), 0);
-        axis.draw(gl,netShader,modelMatrix);
-        netPlane.draw(gl,netShader,modelMatrix);
-        marker.draw(gl,netShader,LinAl.matrixMul(LinAl.translate(lightPos[0],lightPos[1],lightPos[2]),modelMatrix));
+        gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false,viewMatrix, 0);
+        axis.draw(gl,netShader,LinAl.identity());
+        netPlane.draw(gl,netShader,LinAl.identity());
+        marker.draw(gl,netShader,LinAl.translate(lightPos[0],lightPos[1],lightPos[2]));
 
         checkErr(gl);
     }
@@ -134,7 +125,7 @@ public class BasicFrame implements GLEventListener {
     public static void main(String[] args) {
         final GLProfile profile = GLProfile.get(GLProfile.GL4);
         GLCapabilities capabilities = new GLCapabilities(profile);
-        final GLCanvas glcanvas = new GLCanvas(capabilities);
+        final GLCanvas glcanvas = new GLCanvas(capabilities){};
         BasicFrame frame = new BasicFrame();
         glcanvas.addGLEventListener(frame);
         glcanvas.setSize(1000, 1000);
@@ -144,6 +135,18 @@ public class BasicFrame implements GLEventListener {
         content.add(new ControlPanel(frame, glcanvas));
 
         final JFrame window = new JFrame("Basic Frame");
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                glcanvas.requestFocus();
+                Timer timer=new Timer(100,ee->{
+                    glcanvas.requestFocus();
+                });
+                timer.setRepeats(true);
+                timer.start();
+            }
+        });
+
 
         new FPSAnimator(glcanvas, 60).start();
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
