@@ -10,11 +10,13 @@ in vec2 a_Tex_Coord;
 in vec3 norm_in;
 
 
+
 out vec3 Color_g;
 out vec2 v_Tex_Coord;
 out vec3 normal_v;
 out vec4 light;
 out vec4 posg;
+out vec3 observer_pos;
 
 void main()
 {
@@ -24,10 +26,10 @@ void main()
     float ll=10;
 
     mat4 pers=mat4(
-    (1/tan(alpha)),    0,    0,      0,
-    0,    1/(tan(alpha)),    0,      0,
-    0,    0,    (ll+l)/(ll-l),       1,
-    0,    0,      -2*ll*l/(ll-l),    0
+        (1/tan(alpha)),    0,    0,      0,
+        0,    1/(tan(alpha)),    0,      0,
+        0,    0,    (ll+l)/(ll-l),       1,
+        0,    0,      -2*ll*l/(ll-l),    0
     );
 
     vec4 light_source=vec4(light_pos,1.0);
@@ -37,5 +39,6 @@ void main()
     light=viewMatrix*light_source;
     normal_v=normalize((viewMatrix*modelMatrix*vec4(norm_in,0)).xyz);
     posg=viewMatrix*modelMatrix*position;
-    gl_Position =pers* (viewMatrix*modelMatrix*position) ;
+    observer_pos=vec3(inverse(viewMatrix)[0][3],inverse(viewMatrix)[1][3],inverse(viewMatrix)[2][3]);
+    gl_Position =pers* (viewMatrix*modelMatrix*position);
 }

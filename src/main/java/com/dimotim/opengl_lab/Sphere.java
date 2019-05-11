@@ -6,8 +6,8 @@ public class Sphere extends GLObject {
     private static final String texturePath = "venera.png";
     private static final double R=0.12;
     private static final double am=Math.PI/2;
-    private static final int betaCount=25;
-    private static final int alphaCount=25;
+    private static final int betaCount=75;
+    private static final int alphaCount=75;
 
     private static float[][] genQuad(int na, int nb){
         return new float[][]{
