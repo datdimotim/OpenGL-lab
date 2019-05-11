@@ -21,18 +21,11 @@ public class ControlPanel extends JPanel {
     }
 
     ControlPanel(BasicFrame frame, GLCanvas canvas) {
-        setLayout(new GridLayout(2, 1));
+        setLayout(new GridLayout(1, 1));
 
         add(new XYZPanel("Источник света",xyz->{
             canvas.invoke(false,ee->{
                 frame.setLightPos(xyz[0],xyz[1],xyz[2]);
-                return false;
-            });
-        }));
-
-        add(new XYZPanel("Точка наблюдения",xyz->{
-            canvas.invoke(false,ee->{
-                frame.setObserverPos(xyz[0],xyz[1],xyz[2]);
                 return false;
             });
         }));
@@ -49,13 +42,11 @@ public class ControlPanel extends JPanel {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                float xD = e.getX() - xStart;
-                float yD = e.getY() - yStart;
-                float vectorSize = (float) Math.sqrt(xD * xD + yD * yD);
-                float[] xy = getXYNormalised(xD, yD);
+                double xD = (e.getX() - xStart)*1.0/e.getComponent().getHeight();
+                double yD = (e.getY() - yStart)*1.0/e.getComponent().getHeight();
 
                 canvas.invoke(false, ee -> {
-                    frame.changeViewMatrixByMouse((float) Math.PI * vectorSize / 300, xy[0], xy[1]);
+                    frame.changeViewMatrixByMouse(xD,yD);
                     return false;
                 });
             }
@@ -71,7 +62,7 @@ public class ControlPanel extends JPanel {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 canvas.invoke(false, ee -> {
-                    //frame.scale(e.getWheelRotation());
+                    frame.rotate(e.getWheelRotation());
                     return false;
                 });
             }
@@ -94,6 +85,7 @@ public class ControlPanel extends JPanel {
                 if(e.getKeyChar()=='s') action.accept(new float[]{0,0,-d});
                 if(e.getKeyChar()=='a') action.accept(new float[]{-d,0,0});
                 if(e.getKeyChar()=='d') action.accept(new float[]{d,0,0});
+                System.out.println(e.getKeyChar());
             }
         });
     }

@@ -1,4 +1,9 @@
 package com.dimotim.opengl_lab;
+import java.util.Arrays;
+import java.util.function.ToDoubleBiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
 import static java.lang.Math.*;
 
 
@@ -27,6 +32,10 @@ public class LinAl {
     }
 
     public static float[] rotate(double angle, double x, double y, double z){
+        double[] n=normalize(new double[]{x,y,z});
+        x=n[0];
+        y=n[1];
+        z=n[2];
         double[] m= new double[]{
                 cos(angle)+(1-cos(angle))*x*x, (1-cos(angle))*x*y - sin(angle)*z, (1-cos(angle))*x*z+sin(angle)*y,0,
                 (1-cos(angle))*y*x+sin(angle)*z, cos(angle)+(1-cos(angle))*y*y, (1-cos(angle))*y*z-sin(angle)*x,0,
@@ -39,6 +48,11 @@ public class LinAl {
             mf[i]= (float) m[i];
         }
         return mf;
+    }
+
+    public static double[] normalize(double[] v){
+        final double norm= Math.pow(DoubleStream.of(v).map(d->d*d).sum(),0.5);
+        return DoubleStream.of(v).map(d->d/norm).toArray();
     }
 
     public static double[] vecMul(double[] o,double[] a, double[] b){

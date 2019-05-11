@@ -28,15 +28,18 @@ public class BasicFrame implements GLEventListener {
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            0, 0, 0, 1
+            0, 0, 1, 1
     };
 
     private final float[] lightPos=new float[3];
 
     private float[] prevViewMatrix=viewMatrix;
 
-    public void changeViewMatrixByMouse(double angle, double x, double y){
-        viewMatrix=LinAl.matrixMul(prevViewMatrix,LinAl.rotate(angle,x,y,0));
+    public void changeViewMatrixByMouse(double dx,double dy){
+        if(Math.abs(dx)<0.00001)return;
+        viewMatrix=LinAl.matrixMul(prevViewMatrix,LinAl.rotate(Math.abs(dx)*10,0,dx,0));
+        if(Math.abs(dy)<0.00001)return;
+        viewMatrix=LinAl.matrixMul(viewMatrix,LinAl.rotate(Math.abs(dy)*10,dy,0,0));
     }
 
     public void commitViewMatrixByMouse(){
@@ -50,18 +53,13 @@ public class BasicFrame implements GLEventListener {
         lightPos[2]= z;
     }
 
-    public void setObserverPos(float x, float y, float z){
-        viewMatrix= LinAl.matrixMul(new float[]{
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                -x, -y,-z, 1
-        },viewMatrix);
+    public void translateObserver(float[] dir){
+        viewMatrix=LinAl.matrixMul(viewMatrix,LinAl.translate(-dir[0],-dir[1],-dir[2]));
         prevViewMatrix=viewMatrix;
     }
 
-    public void translateObserver(float[] dir){
-        viewMatrix=LinAl.matrixMul(viewMatrix,LinAl.translate(-dir[0],-dir[1],-dir[2]));
+    public void rotate(int dir){
+        viewMatrix=LinAl.matrixMul(viewMatrix,LinAl.rotate(0.05,0,0,dir));
         prevViewMatrix=viewMatrix;
     }
 
