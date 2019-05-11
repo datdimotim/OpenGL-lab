@@ -10,13 +10,12 @@ import javax.swing.*;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 
 import static com.jogamp.opengl.GL.*;
 
 
 public class BasicFrame implements GLEventListener {
-    private int textureId;
-
     private final Axis axis = new Axis();
     private final NetPlane netPlane=new NetPlane();
     private final Marker marker=new Marker();
@@ -66,6 +65,10 @@ public class BasicFrame implements GLEventListener {
     public void display(GLAutoDrawable drawable) {
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
+
+        float[] inv=LinAl.inverse(viewMatrix);
+        float[] observerPos=new float[]{inv[12],inv[13],inv[14]};
+        System.out.println("ObserverPos: "+Arrays.toString(observerPos));
 
         final GL4 gl = drawable.getGL().getGL4();
 
