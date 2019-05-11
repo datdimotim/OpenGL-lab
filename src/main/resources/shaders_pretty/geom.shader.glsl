@@ -30,8 +30,8 @@ vec3 crossVec4(vec4 _v1, vec4 _v2){
 }
 
 void main() {
-    vec3 u=normalize(gl_in[1].gl_Position.xyz-gl_in[0].gl_Position.xyz);
-    vec3 v=normalize(gl_in[2].gl_Position.xyz-gl_in[0].gl_Position.xyz);
+    vec3 u=normalize(posg[1].xyz-posg[0].xyz);
+    vec3 v=normalize(posg[2].xyz-posg[0].xyz);
     vec3 t1=normalize(vec3(v_Tex_Coord[1]-v_Tex_Coord[0],0));
     vec3 t2=normalize(vec3(v_Tex_Coord[2]-v_Tex_Coord[0],0));
 
