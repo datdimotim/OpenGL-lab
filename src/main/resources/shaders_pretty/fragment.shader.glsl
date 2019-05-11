@@ -41,5 +41,5 @@ void main(){
     vec4 diffuseColor=(vec4(Color1,1)+textureColor*(1-imgNormalRatio))*max(dot(-ptTolight,resNormal),0);
     vec4 specularColor=specIsPresent*vec4(1,1,1,1)*pow(max(dot(ptToEye,-normal),0),100);
 
-    outColor=ambientColor*0.2+0.5*diffuseColor+specularColor*0.2;
+    outColor=ambientColor*0.2+0.6*diffuseColor+specularColor*0.2;
 }
