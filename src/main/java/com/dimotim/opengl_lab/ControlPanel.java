@@ -81,11 +81,10 @@ public class ControlPanel extends JPanel {
                   });
                 };
                 final float d=0.05f;
-                if(e.getKeyChar()=='w') action.accept(new float[]{0,0,d});
-                if(e.getKeyChar()=='s') action.accept(new float[]{0,0,-d});
-                if(e.getKeyChar()=='a') action.accept(new float[]{-d,0,0});
-                if(e.getKeyChar()=='d') action.accept(new float[]{d,0,0});
-                System.out.println(e.getKeyChar());
+                if(Character.toLowerCase(e.getKeyChar())=='w'||Character.toLowerCase(e.getKeyChar())=='ц') action.accept(new float[]{0,0,d});
+                if(Character.toLowerCase(e.getKeyChar())=='s'||Character.toLowerCase(e.getKeyChar())=='ы') action.accept(new float[]{0,0,-d});
+                if(Character.toLowerCase(e.getKeyChar())=='a'||Character.toLowerCase(e.getKeyChar())=='ф') action.accept(new float[]{-d,0,0});
+                if(Character.toLowerCase(e.getKeyChar())=='d'||Character.toLowerCase(e.getKeyChar())=='в') action.accept(new float[]{d,0,0});
             }
         });
     }
