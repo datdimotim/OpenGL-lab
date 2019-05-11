@@ -7,7 +7,7 @@ public class Cylinder extends GLObject {
     private static final String texturePath = "bump24.png";
     private static final double R=0.07;
     private static final double L=0.5;
-    private static final int count=75;
+    private static final int count=175;
 
     private static float[][] genQuad(int rNum){
         return new float[][]{
@@ -61,7 +61,16 @@ public class Cylinder extends GLObject {
 
     @Override
     protected float[] getColorArray() {
-        return new float[0];
+        float[] v=new float[3*6*count];
+        int i=0;
+        for(int q=0;q<count;q++){
+            for(int g=0;g<6;g++){
+                v[i++]=0.5f;
+                v[i++]=0.5f;
+                v[i++]=0.5f;
+            }
+        }
+        return v;
     }
 
     @Override

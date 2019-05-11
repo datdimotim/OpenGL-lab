@@ -33,9 +33,11 @@ void main(){
     mat3 mvert=mat3(uVec,vVec,normal);
     vec3 exactNormal = mvert * inverse(mtex)*uvt;
 
+    vec3 resNormal=normal*(1-imgNormalRatio)+exactNormal;
 
+    vec4 ambientColor=vec4(Color1,1)+textureColor*(1-imgNormalRatio);
+    vec4 diffuseColor=(vec4(Color1,1)+textureColor*(1-imgNormalRatio))*max(dot(-light,resNormal),0);
+    vec4 specularColor=vec4(1,1,1,1)*pow(max(dot(normalize(position.xyz-observer),-normal),0),100);
 
-    vec4 texturedColor=0.6*textureColor+  0.6*textureColor*dot(-light,normal)               + 0.5*vec4(1,1,1,1)*pow(dot(normalize(position.xyz-observer),-normal),100);
-    vec4 bumpedColor=vec4(0.3,0.3,0.3,1)+vec4(0.5,0.5,0.5,1)*(dot(-light,exactNormal)) + 0.1*vec4(1,1,1,1)*pow(dot(normalize(position.xyz-observer),-exactNormal),100);;
-    outColor=(texturedColor*(1-imgNormalRatio) + bumpedColor*imgNormalRatio);
+    outColor=ambientColor*0.2+0.5*diffuseColor+specularColor*0.1;
 }

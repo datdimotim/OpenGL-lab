@@ -66,10 +66,6 @@ public class BasicFrame implements GLEventListener {
         final int width = drawable.getSurfaceWidth();
         final int heght = drawable.getSurfaceHeight();
 
-        float[] inv=LinAl.inverse(viewMatrix);
-        float[] observerPos=new float[]{inv[12],inv[13],inv[14]};
-        System.out.println("ObserverPos: "+Arrays.toString(observerPos));
-
         final GL4 gl = drawable.getGL().getGL4();
 
         int error2 = gl.glGetError();
