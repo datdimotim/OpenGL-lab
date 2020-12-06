@@ -19,7 +19,8 @@ public class BasicFrame implements GLEventListener {
     private final Axis axis = new Axis();
     private final NetPlane netPlane=new NetPlane();
     private final Marker marker=new Marker();
-    private final CompositeModel model=new CompositeModel();
+    //private final CompositeModel model=new CompositeModel();
+    private final Zont zont = new Zont(3, 5);
     private TextureShader shader = null;
     private Shader netShader=null;
 
@@ -89,7 +90,7 @@ public class BasicFrame implements GLEventListener {
         shader.use(gl);
         gl.glUniform3f(shader.getLightPosLoc(),lightPos[0],lightPos[1],lightPos[2]);
         gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, viewMatrix, 0);
-        model.draw(gl,shader,LinAl.identity());
+        zont.draw(gl,shader,LinAl.identity());
 
         netShader.use(gl);
         gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false,viewMatrix, 0);
