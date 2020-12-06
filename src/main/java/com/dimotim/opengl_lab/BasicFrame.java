@@ -120,6 +120,7 @@ public class BasicFrame implements GLEventListener {
 
 
     public static void main(String[] args) {
+        System.setProperty("jogl.disable.openglcore", "true");
         final GLProfile profile = GLProfile.get(GLProfile.GL4);
         GLCapabilities capabilities = new GLCapabilities(profile);
         final GLCanvas glcanvas = new GLCanvas(capabilities){};
