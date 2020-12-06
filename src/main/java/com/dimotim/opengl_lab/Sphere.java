@@ -20,16 +20,6 @@ public class Sphere extends GLObject {
         };
     }
 
-    private static float[][] genTextureQuad(int na, int nb){
-        return new float[][]{
-                genPointTexture(na,nb),
-                genPointTexture(na,nb+1),
-                genPointTexture(na+1,nb+1),
-                genPointTexture(na+1,nb+1),
-                genPointTexture(na,nb),
-                genPointTexture(na+1,nb)
-        };
-    }
 
     private static float[] genPoint(int na, int nb){
         final double a=Math.PI/alphaCount*na-Math.PI/2;
@@ -42,7 +32,16 @@ public class Sphere extends GLObject {
 
         return new float[]{(float) x, (float) y, (float) z};
     }
-
+    private static float[][] genTextureQuad(int na, int nb){
+        return new float[][]{
+                genPointTexture(na,nb),
+                genPointTexture(na,nb+1),
+                genPointTexture(na+1,nb+1),
+                genPointTexture(na+1,nb+1),
+                genPointTexture(na,nb),
+                genPointTexture(na+1,nb)
+        };
+    }
 
     private static float[] genPointTexture(int na, int nb){
         final double a=Math.PI/alphaCount*na-Math.PI/2;

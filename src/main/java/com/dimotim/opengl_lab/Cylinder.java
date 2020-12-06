@@ -9,16 +9,7 @@ public class Cylinder extends GLObject {
     private static final double L=0.5;
     private static final int count=175;
 
-    private static float[][] genQuad(int rNum){
-        return new float[][]{
-                genPoint(rNum,0),
-                genPoint(rNum,1),
-                genPoint(rNum+1,1),
-                genPoint(rNum+1,1),
-                genPoint(rNum,0),
-                genPoint(rNum+1,0)
-        };
-    }
+
 
     private static float[][] genTextureQuad(int rNum){
         return new float[][]{
@@ -30,7 +21,16 @@ public class Cylinder extends GLObject {
                 genPointTexture(rNum+1,0)
         };
     }
-
+    private static float[][] genQuad(int rNum){
+        return new float[][]{
+                genPoint(rNum,0),
+                genPoint(rNum,1),
+                genPoint(rNum+1,1),
+                genPoint(rNum+1,1),
+                genPoint(rNum,0),
+                genPoint(rNum+1,0)
+        };
+    }
     private static float[] genPoint(int rNum, int l){
         final double a=2*Math.PI/count*rNum;
 
