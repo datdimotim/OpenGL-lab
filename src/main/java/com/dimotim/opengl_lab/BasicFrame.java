@@ -4,6 +4,7 @@ package com.dimotim.opengl_lab;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
+import jogamp.opengl.GLContextImpl;
 
 
 import javax.swing.*;
@@ -21,6 +22,7 @@ public class BasicFrame implements GLEventListener {
     private final Marker marker=new Marker();
     //private final CompositeModel model=new CompositeModel();
     private final Zont zont = new Zont(3, 5);
+    private double zontAngle = 0;
     private TextureShader shader = null;
     private Shader netShader=null;
 
@@ -90,7 +92,8 @@ public class BasicFrame implements GLEventListener {
         shader.use(gl);
         gl.glUniform3f(shader.getLightPosLoc(),lightPos[0],lightPos[1],lightPos[2]);
         gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, viewMatrix, 0);
-        zont.draw(gl,shader,LinAl.identity());
+        zont.draw(gl,shader,LinAl.matrixMul(LinAl.rotate(zontAngle, 0, 1,0), LinAl.translate(0, 0, 2)));
+        zontAngle+=0.01;
 
         netShader.use(gl);
         gl.glUniformMatrix4fv(netShader.getViewMatrixLoc(), 1, false,viewMatrix, 0);
@@ -121,7 +124,6 @@ public class BasicFrame implements GLEventListener {
 
 
     public static void main(String[] args) {
-        System.setProperty("jogl.disable.openglcore", "true");
         final GLProfile profile = GLProfile.get(GLProfile.GL4);
         GLCapabilities capabilities = new GLCapabilities(profile);
         final GLCanvas glcanvas = new GLCanvas(capabilities){};
