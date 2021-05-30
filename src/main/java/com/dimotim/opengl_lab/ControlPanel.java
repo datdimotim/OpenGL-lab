@@ -95,9 +95,9 @@ class XYZPanel extends JPanel{
     public XYZPanel(String caption,Consumer<float[]> changeListener){
         setLayout(new GridLayout(4, 1));
 
-        JSlider x=new JSlider(-100,100);
-        JSlider y=new JSlider(-100,100);
-        JSlider z=new JSlider(-100,100);
+        JSlider x=new JSlider(-1000,1000);
+        JSlider y=new JSlider(-1000,1000);
+        JSlider z=new JSlider(-1000,1000);
         JLabel xl=new JLabel();
         JLabel yl=new JLabel();
         JLabel zl=new JLabel();

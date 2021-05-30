@@ -1,6 +1,9 @@
 package com.dimotim.opengl_lab;
 
 
+import com.dimotim.opengl_lab.ngran.Hexaeder;
+import com.dimotim.opengl_lab.ngran.Oktaeder;
+import com.dimotim.opengl_lab.ngran.Tetraeder;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -21,7 +24,10 @@ public class BasicFrame implements GLEventListener {
     private final NetPlane netPlane=new NetPlane();
     private final Marker marker=new Marker();
     //private final CompositeModel model=new CompositeModel();
-    private final Zont zont = new Zont(3, 5);
+    //private final Zont zont = new Zont(5, 3);
+    private final Tetraeder tetraeder = new Tetraeder();
+    private final Oktaeder oktaeder = new Oktaeder();
+    private final Hexaeder hexaeder = new Hexaeder();
     private double zontAngle = 0;
     private TextureShader shader = null;
     private Shader netShader=null;
@@ -78,7 +84,7 @@ public class BasicFrame implements GLEventListener {
 
 
 
-        gl.glClearColor(0, 0, 0, 0);
+        gl.glClearColor(0.3f, 0.3f, 0.3f, 0);
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
         gl.glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -92,7 +98,24 @@ public class BasicFrame implements GLEventListener {
         shader.use(gl);
         gl.glUniform3f(shader.getLightPosLoc(),lightPos[0],lightPos[1],lightPos[2]);
         gl.glUniformMatrix4fv(shader.getViewMatrixLoc(), 1, false, viewMatrix, 0);
-        zont.draw(gl,shader,LinAl.matrixMul(LinAl.rotate(zontAngle, 0, 1,0), LinAl.translate(0, 0, 2)));
+        tetraeder.draw(gl,shader,
+                LinAl.matrixMul(
+                        LinAl.scale(0.2f),
+                        LinAl.rotate(zontAngle, 0, 1,0),
+                        LinAl.translate(-1, 0, 2))
+        );
+        oktaeder.draw(gl,shader,
+                LinAl.matrixMul(
+                        LinAl.scale(0.4f),
+                        LinAl.rotate(zontAngle, 0, 1,0),
+                        LinAl.translate(0, 0, 2))
+        );
+        hexaeder.draw(gl,shader,
+                LinAl.matrixMul(
+                        LinAl.scale(0.2f),
+                        LinAl.rotate(zontAngle, 0, 1,0),
+                        LinAl.translate(1, 0, 2))
+        );
         zontAngle+=0.01;
 
         netShader.use(gl);

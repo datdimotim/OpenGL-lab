@@ -78,7 +78,7 @@ public class LinAl {
         }
         return m1;
     }
-    public static float[] matrixMul(float [] m1, float[] m2){
+    public static float[] matrixMul(float[] m1, float[] m2){
         float c [] = new float[16];
         for (int i = 0; i<4; i++) {
             for (int j = 0; j<4; j++) {
@@ -88,6 +88,14 @@ public class LinAl {
             }
         }
         return c;
+    }
+
+    public static float[] matrixMul(float[]... ms){
+        float[] r = identity();
+        for (float[] m:ms) {
+            r = matrixMul(r, m);
+        }
+        return r;
     }
 
 
